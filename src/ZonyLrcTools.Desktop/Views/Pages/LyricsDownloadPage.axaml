@@ -5,7 +5,7 @@
              x:Class="ZonyLrcTools.Desktop.Views.Pages.LyricsDownloadPage"
              x:DataType="vm:LyricsDownloadViewModel">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
         <!-- Title -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
             <TextBlock Text="{Binding LyricsTitle}"
@@ -57,6 +57,7 @@
                            FontSize="13"
                            FontWeight="Medium" />
                 <NumericUpDown Grid.Row="2" Grid.Column="1"
+                               IsEnabled="{Binding CanStartDownload}"
                                Value="{Binding ParallelCount}"
                                Minimum="1"
                                Maximum="32"
@@ -107,6 +108,11 @@
                                  Maximum="100" Height="6" />
                     <TextBlock HorizontalAlignment="Center" FontSize="12" Opacity="0.7">
                         <Run Text="{Binding CompletedCount}" />
+                        <Run Text=" 成功 · " />
+                        <Run Text="{Binding FailedCount}" />
+                        <Run Text=" 失败 · " />
+                        <Run Text="{Binding SkippedCount}" />
+                        <Run Text=" 跳过" />
                         <Run Text=" / " />
                         <Run Text="{Binding TotalCount}" />
                     </TextBlock>
@@ -121,8 +127,10 @@
                     BoxShadow="0 2 8 0 #0D000000"
                     ClipToBounds="True">
                 <DataGrid ItemsSource="{Binding MusicFiles}"
+                          SelectedItem="{Binding SelectedMusicFile}"
+                          IsEnabled="{Binding CanStartDownload}"
                           AutoGenerateColumns="False"
-                          IsReadOnly="True"
+                          IsReadOnly="False"
                           GridLinesVisibility="Horizontal"
                           BorderThickness="0"
                           Background="Transparent">
@@ -137,10 +145,12 @@
                                             Width="150" />
                         <DataGridTextColumn x:DataType="vm:MusicFileViewModel"
                                             Header="{loc:Localize Column_FilePath}"
+                                            IsReadOnly="True"
                                             Binding="{Binding FilePath}"
                                             Width="250" />
                         <DataGridTextColumn x:DataType="vm:MusicFileViewModel"
                                             Header="{loc:Localize Column_Status}"
+                                            IsReadOnly="True"
                                             Binding="{Binding StatusMessage}"
                                             Width="100" />
                     </DataGrid.Columns>
@@ -172,8 +182,21 @@
             </Border>
         </Panel>
 
+        <StackPanel Grid.Row="3" Spacing="8" Margin="0,12,0,0">
+            <WrapPanel>
+                <Button Content="仅重试失败" Command="{Binding RetryFailedCommand}" Margin="0,0,8,0" />
+                <Button Content="打开音乐目录" Command="{Binding OpenFolderCommand}" Margin="0,0,8,0" />
+                <Button Content="导出失败列表" Command="{Binding ExportFailedCommand}" Margin="0,0,8,0" />
+                <Button Content="预览歌词" Command="{Binding PreviewLyricsCommand}" IsVisible="{Binding IsLyrics}" />
+            </WrapPanel>
+            <Expander Header="歌词预览" IsVisible="{Binding IsLyrics}">
+                <TextBox Text="{Binding PreviewText}" IsReadOnly="True" AcceptsReturn="True"
+                         TextWrapping="Wrap" Height="150" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            </Expander>
+            <TextBlock Text="{Binding TaskStatus}" TextWrapping="Wrap" Opacity="0.7" />
+        </StackPanel>
         <!-- Card 3: Status Bar -->
-        <Border Grid.Row="3"
+        <Border Grid.Row="4"
                 Background="{DynamicResource CardBackgroundBrush}"
                 BoxShadow="0 2 8 0 #0D000000"
                 Padding="24,12"

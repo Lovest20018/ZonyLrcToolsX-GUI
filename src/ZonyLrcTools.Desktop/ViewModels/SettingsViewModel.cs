@@ -7,6 +7,7 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using ZonyLrcTools.Common.Configuration;
 using ZonyLrcTools.Desktop.Infrastructure.Localization;
+using ZonyLrcTools.Desktop.Services;
 
 namespace ZonyLrcTools.Desktop.ViewModels;
 
@@ -15,6 +16,10 @@ public partial class SettingsViewModel : ViewModelBase
     private readonly GlobalOptions _globalOptions;
     private readonly IUILocalizationService? _localizationService;
     private bool _isLoading = true; // Prevent saving during initial load
+    private readonly DesktopPreferences _preferences;
+
+    [ObservableProperty]
+    private string _saveStatus = "设置自动保存；代理设置在重启后生效。";
 
     [ObservableProperty]
     private bool _followSystemLanguage = true;
@@ -68,10 +73,11 @@ public partial class SettingsViewModel : ViewModelBase
 
     public ObservableCollection<LyricsProviderSettingViewModel> LyricsProviders { get; } = new();
 
-    public SettingsViewModel(IOptions<GlobalOptions> options, IUILocalizationService? localizationService = null)
+    public SettingsViewModel(IOptions<GlobalOptions> options, DesktopPreferences preferences, IUILocalizationService? localizationService = null)
     {
         _globalOptions = options.Value;
         _localizationService = localizationService;
+        _preferences = preferences;
 
         // Subscribe to language changes
         if (_localizationService != null)
@@ -82,6 +88,8 @@ public partial class SettingsViewModel : ViewModelBase
         LoadSettings();
         LoadLanguageSettings();
         _isLoading = false; // Allow saving after initial load
+        foreach (var provider in LyricsProviders)
+            provider.PropertyChanged += (_, _) => SaveSettingsIfNotLoading();
     }
 
     private void OnLanguageChanged(object? sender, EventArgs e)
@@ -100,6 +108,7 @@ public partial class SettingsViewModel : ViewModelBase
 
     private void LoadLanguageSettings()
     {
+        FollowSystemLanguage = _preferences.FollowSystemLanguage;
         var currentCulture = CultureInfo.CurrentUICulture.Name;
         IsChineseSelected = currentCulture.StartsWith("zh");
         IsEnglishSelected = currentCulture.StartsWith("en");
@@ -107,7 +116,7 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnFollowSystemLanguageChanged(bool value)
     {
-        if (value)
+        if (value && !_isLoading)
         {
             // Auto-detect system language
             var systemCulture = CultureInfo.InstalledUICulture.Name;
@@ -181,7 +190,7 @@ public partial class SettingsViewModel : ViewModelBase
                 LyricsProviders.Add(new LyricsProviderSettingViewModel
                 {
                     Name = provider.Name ?? "Unknown",
-                    Priority = provider.Priority,
+                    Priority = provider.Priority == -1 ? LyricsProviders.Count + 1 : provider.Priority,
                     IsEnabled = provider.Priority != -1
                 });
             }
@@ -208,19 +217,30 @@ public partial class SettingsViewModel : ViewModelBase
                 _globalOptions.Provider.Lyric.Config.FileEncoding = SelectedEncoding;
             }
 
+            foreach (var provider in LyricsProviders)
+            {
+                var option = _globalOptions.Provider!.Lyric.Plugin.First(p => p.Name == provider.Name);
+                option.Priority = provider.IsEnabled ? provider.Priority : -1;
+            }
+            _preferences.FollowSystemLanguage = FollowSystemLanguage;
+            _preferences.Culture = IsEnglishSelected ? "en-US" : "zh-CN";
+            _preferences.Save();
+
             // Serialize and save to file
             var serializer = new SerializerBuilder()
                 .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
             var yaml = serializer.Serialize(_globalOptions);
-            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.yaml");
-            File.WriteAllText(configPath, yaml);
+            var configPath = DesktopPreferences.ConfigPath;
+            File.WriteAllText(configPath + ".tmp", yaml);
+            File.Move(configPath + ".tmp", configPath, true);
+            SaveStatus = "已保存。代理设置在重启后生效。";
         }
         catch (Exception ex)
         {
             // Log error but don't crash - settings save is best effort
-            System.Diagnostics.Debug.WriteLine($"Failed to save settings: {ex.Message}");
+            SaveStatus = $"设置保存失败：{ex.Message}";
         }
     }
 
@@ -235,6 +255,12 @@ public partial class SettingsViewModel : ViewModelBase
         IsOneLineMode = false;
         SkipExistingLyrics = true;
         SelectedEncoding = "utf-8";
+        var priority = 1;
+        foreach (var provider in LyricsProviders)
+        {
+            provider.IsEnabled = true;
+            provider.Priority = priority++;
+        }
         _isLoading = false;
         SaveSettingsToFile(); // Save once after all resets
     }

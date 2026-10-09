@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels"
+             x:Class="ZonyLrcTools.Desktop.Views.Pages.ManualDownloadPage"
+             x:DataType="vm:ManualDownloadViewModel">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <StackPanel Margin="0,0,0,20" Spacing="6">
+            <TextBlock Text="单曲歌词" FontSize="24" FontWeight="Bold" />
+            <TextBlock Text="没有本地音乐文件也可以下载。先匹配和预览，再保存为 .lrc 文件。" Opacity="0.6" />
+        </StackPanel>
+        <Border Grid.Row="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="8" Padding="24" Margin="0,0,0,16">
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*,Auto">
+                <TextBox Text="{Binding SongName}" Watermark="歌名，例如：七里香" IsEnabled="{Binding !IsBusy}" Margin="0,0,12,14" />
+                <TextBox Grid.Column="1" Text="{Binding Artist}" Watermark="歌手，例如：周杰伦" IsEnabled="{Binding !IsBusy}" Margin="0,0,12,14" />
+                <Button Grid.Column="2" Content="匹配并预览" Command="{Binding MatchCommand}" Classes="accent" IsVisible="{Binding !IsBusy}" />
+                <Button Grid.Column="2" Content="停止匹配" Command="{Binding CancelCommand}" IsVisible="{Binding IsBusy}" />
+                <TextBox Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding OutputFolder}" Watermark="歌词保存目录" Margin="0,0,12,0" />
+                <Button Grid.Row="1" Grid.Column="2" Content="选择保存目录" Command="{Binding BrowseCommand}" />
+            </Grid>
+        </Border>
+        <TextBox Grid.Row="2" Text="{Binding Preview}" IsReadOnly="True" AcceptsReturn="True"
+                 TextWrapping="Wrap" FontFamily="Cascadia Mono,Microsoft YaHei UI"
+                 Watermark="匹配成功后，歌词显示在这里。"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto" />
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+            <TextBlock Text="{Binding Status}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,16,0" />
+            <Button Grid.Column="1" Content="保存 .lrc 文件" Command="{Binding SaveCommand}" Classes="accent" />
+        </Grid>
+    </Grid>
+</UserControl>

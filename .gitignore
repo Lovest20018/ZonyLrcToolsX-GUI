@@ -452,3 +452,8 @@ fabric.properties
 /src/ZonyLrcTools.Cli/TempFiles/
 
 src/ZonyLrcTools.LocalServer/UiStaticResources/*
+
+# Windows GUI build outputs and local tooling
+.tools/
+dist/
+**/.avalonia-build-tasks/

@@ -17,6 +17,7 @@
         <PackageReference Include="Avalonia.Themes.Fluent" />
         <PackageReference Include="Avalonia.Fonts.Inter" />
         <PackageReference Include="Avalonia.Controls.DataGrid" />
+        <PackageReference Include="Tmds.DBus.Protocol" />
         <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
         <!-- MVVM -->
         <PackageReference Include="CommunityToolkit.Mvvm" />
@@ -27,7 +28,6 @@
         <PackageReference Include="Serilog.Extensions.Hosting" />
         <PackageReference Include="Serilog.Sinks.File" />
         <!-- Encoding -->
-        <PackageReference Include="System.Text.Encoding.CodePages" />
         <!-- Localization -->
         <PackageReference Include="Microsoft.Extensions.Localization" />
     </ItemGroup>

@@ -73,21 +73,21 @@
                     BoxShadow="0 2 8 0 #0D000000"
                     Padding="24">
                 <StackPanel Spacing="16">
-                    <TextBlock Text="Lyrics"
+                    <TextBlock Text="歌词输出"
                                FontSize="18"
                                FontWeight="SemiBold" />
 
-                    <CheckBox Content="Enable translation lyrics"
+                    <CheckBox Content="下载翻译歌词"
                               IsChecked="{Binding IsTranslationEnabled}" />
 
-                    <CheckBox Content="One-line mode (original + translation on same line)"
+                    <CheckBox Content="原文与翻译合并为一行"
                               IsChecked="{Binding IsOneLineMode}" />
 
-                    <CheckBox Content="Skip existing lyrics files"
+                    <CheckBox Content="跳过已有 .lrc 文件（关闭后覆盖已有歌词）"
                               IsChecked="{Binding SkipExistingLyrics}" />
 
                     <StackPanel Orientation="Horizontal" Spacing="16">
-                        <TextBlock Text="File Encoding:"
+                        <TextBlock Text="文件编码："
                                    VerticalAlignment="Center" />
                         <ComboBox ItemsSource="{Binding AvailableEncodings}"
                                   SelectedItem="{Binding SelectedEncoding}"
@@ -120,12 +120,9 @@
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding Name}"
                                                    VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="2"
-                                                   VerticalAlignment="Center"
-                                                   Opacity="0.5">
-                                            <Run Text="Priority: " />
-                                            <Run Text="{Binding Priority}" />
-                                        </TextBlock>
+                                        <NumericUpDown Grid.Column="2" Value="{Binding Priority}"
+                                                       Minimum="1" Maximum="99" Width="100"
+                                                       FormatString="0" IsEnabled="{Binding IsEnabled}" />
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -135,6 +132,8 @@
             </Border>
 
             <!-- Actions -->
+            <TextBlock Text="优先级越小越先尝试；取消勾选可禁用歌词源。" Opacity="0.6" />
+            <TextBlock Text="{Binding SaveStatus}" TextWrapping="Wrap" />
             <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
                 <Button Content="{Binding SettingsReset}"
                         Command="{Binding ResetToDefaultsCommand}" />

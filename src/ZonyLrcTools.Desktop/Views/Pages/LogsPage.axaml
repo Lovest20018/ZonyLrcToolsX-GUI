@@ -1,0 +1,23 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels"
+             xmlns:services="using:ZonyLrcTools.Desktop.Services"
+             x:Class="ZonyLrcTools.Desktop.Views.Pages.LogsPage" x:DataType="vm:LogsViewModel">
+    <Grid RowDefinitions="Auto,*">
+        <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,20">
+            <StackPanel Spacing="6">
+                <TextBlock Text="运行日志" FontSize="24" FontWeight="Bold" />
+                <TextBlock Text="查看下载失败原因。保留最近 1000 条记录，可导出为文本。" Opacity="0.6" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="清空" Command="{Binding ClearCommand}" Margin="0,0,12,0" />
+            <Button Grid.Column="2" Content="导出日志" Command="{Binding ExportCommand}" />
+        </Grid>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Entries}" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="时间" Binding="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}" Width="100" x:DataType="services:LogEntry" />
+                <DataGridTextColumn Header="级别" Binding="{Binding Level}" Width="100" x:DataType="services:LogEntry" />
+                <DataGridTextColumn Header="信息" Binding="{Binding Message}" Width="*" x:DataType="services:LogEntry" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

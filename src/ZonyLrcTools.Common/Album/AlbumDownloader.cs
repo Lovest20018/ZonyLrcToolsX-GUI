@@ -27,7 +27,8 @@ public class AlbumDownloader : IAlbumDownloader, ISingletonDependency
 
     public async Task DownloadAsync(List<MusicInfo> needDownloadMusicInfos,
         int parallelCount = 2,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        Func<MusicInfo, Task>? callback = null)
     {
         await _logger.InfoAsync("开始下载专辑图像数据...");
 
@@ -37,28 +38,54 @@ public class AlbumDownloader : IAlbumDownloader, ISingletonDependency
             return;
         }
 
-        var warpTask = new WarpTask(parallelCount);
+        using var warpTask = new WarpTask(Math.Max(1, parallelCount));
         var warpTaskList = needDownloadMusicInfos.Select(info =>
             warpTask.RunAsync(() =>
                 Task.Run(async () =>
                 {
-                    _logger.LogSuccessful(info);
-
+                    info.IsSuccessful = false;
+                    info.IsSkipped = false;
+                    info.IsPruneMusic = false;
                     try
                     {
-                        var album = await provider.DownloadAsync(info.Name, info.Artist);
                         var filePath = Path.Combine(Path.GetDirectoryName(info.FilePath)!, $"{Path.GetFileNameWithoutExtension(info.FilePath)}.png");
-                        if (File.Exists(filePath) || album.Length <= 0)
+                        if (File.Exists(filePath))
                         {
+                            info.IsSkipped = true;
+                            info.IsSuccessful = true;
+                            if (callback != null) await callback(info);
                             return;
                         }
-
-                        await new FileStream(filePath, FileMode.Create).WriteBytesToFileAsync(album);
+                        var album = await provider.DownloadAsync(info.Name, info.Artist)
+                            .AsTask().WaitAsync(cancellationToken);
+                        cancellationToken.ThrowIfCancellationRequested();
+                        if (album.Length > 0)
+                        {
+                            var temporary = filePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+                            try
+                            {
+                                await File.WriteAllBytesAsync(temporary, album, cancellationToken);
+                                cancellationToken.ThrowIfCancellationRequested();
+                                File.Move(temporary, filePath, false);
+                            }
+                            finally { if (File.Exists(temporary)) File.Delete(temporary); }
+                            info.IsSuccessful = true;
+                            _logger.LogSuccessful(info);
+                        }
+                    }
+                    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                    {
+                        throw;
                     }
                     catch (ErrorCodeException ex)
                     {
                         _logger.LogWarningInfo(ex);
                     }
+                    catch (Exception ex)
+                    {
+                        await _logger.ErrorAsync($"下载封面失败：{info.Name}，{ex.Message}");
+                    }
+                    if (callback != null) await callback(info);
                 }, cancellationToken), cancellationToken));
 
         await Task.WhenAll(warpTaskList);

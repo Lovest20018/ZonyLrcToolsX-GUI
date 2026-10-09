@@ -37,6 +37,8 @@ namespace ZonyLrcTools.Common
         /// </summary>
         public bool IsPruneMusic { get; set; } = false;
 
+        public bool IsSkipped { get; set; }
+
         /// <summary>
         /// 构建一个新的 <see cref="MusicInfo"/> 对象。
         /// </summary>

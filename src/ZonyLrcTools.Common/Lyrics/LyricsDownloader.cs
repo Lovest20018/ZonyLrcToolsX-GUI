@@ -49,15 +49,28 @@ public class LyricsDownloader : ILyricsDownloader, ISingletonDependency
             parallelCount = 1;
         }
 
-        var warpTask = new WarpTask(parallelCount);
+        using var warpTask = new WarpTask(parallelCount);
         var downloadTasks = needDownloadMusicInfos.Select(info =>
             warpTask.RunAsync(() =>
                 Task.Run(async () =>
                 {
+                    info.IsSuccessful = false;
+                    info.IsPruneMusic = false;
+                    info.IsSkipped = false;
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var destination = Path.ChangeExtension(info.FilePath, ".lrc");
+                    if (_options.Provider.Lyric.Config.IsSkipExistLyricFiles && File.Exists(destination))
+                    {
+                        info.IsSuccessful = true;
+                        info.IsSkipped = true;
+                        if (callback != null) await callback(info);
+                        return;
+                    }
                     // Try to download lyrics from all available providers.
                     foreach (var lyricsProvider in AvailableProviders)
                     {
-                        await DownloadAndWriteLyricsAsync(lyricsProvider, info);
+                        cancellationToken.ThrowIfCancellationRequested();
+                        await DownloadAndWriteLyricsAsync(lyricsProvider, info, cancellationToken);
 
                         if (!info.IsSuccessful) continue;
                         _logger.LogSuccessful(info);
@@ -73,14 +86,24 @@ public class LyricsDownloader : ILyricsDownloader, ISingletonDependency
         var skippedCount = needDownloadMusicInfos.Count(m => m is { IsSuccessful: true, IsPruneMusic: true });
         var failedCount = needDownloadMusicInfos.Count(m => m.IsSuccessful == false);
         await _logger.InfoAsync($"歌词数据下载完成，成功: {successfulCount} 跳过(纯音乐): {skippedCount} 失败{failedCount}。");
-        await LogFailedSongFilesInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"歌词下载失败列表_{DateTime.Now:yyyyMMddHHmmss}.txt"), needDownloadMusicInfos);
+        try
+        {
+            await LogFailedSongFilesInfo(Path.Combine(AppContext.BaseDirectory,
+                $"歌词下载失败列表_{DateTime.Now:yyyyMMddHHmmss}.txt"), needDownloadMusicInfos);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            await _logger.WarnAsync($"无法自动保存失败列表，可在界面中选择其他目录导出：{ex.Message}");
+        }
     }
 
-    private async Task DownloadAndWriteLyricsAsync(ILyricsProvider provider, MusicInfo info)
+    private async Task DownloadAndWriteLyricsAsync(ILyricsProvider provider, MusicInfo info, CancellationToken cancellationToken)
     {
         try
         {
-            var lyrics = await provider.DownloadAsync(info.Name, info.Artist);
+            var lyrics = await provider.DownloadAsync(info.Name, info.Artist, info.TotalTime)
+                .AsTask().WaitAsync(cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
 
             if (lyrics.IsPruneMusic)
             {
@@ -92,22 +115,21 @@ public class LyricsDownloader : ILyricsDownloader, ISingletonDependency
             var newLyricsFilePath = Path.Combine(Path.GetDirectoryName(info.FilePath)!,
                 $"{Path.GetFileNameWithoutExtension(info.FilePath)}.lrc");
 
-            if (File.Exists(newLyricsFilePath))
+            // Complete the replacement only after a successful write.
+            var temporaryPath = newLyricsFilePath + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            try
             {
-                File.Delete(newLyricsFilePath);
+                await File.WriteAllBytesAsync(temporaryPath, Utf8ToSelectedEncoding(lyrics), cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
+                File.Move(temporaryPath, newLyricsFilePath, true);
             }
-
-            // Write lyrics to file.
-            await using (var fileStream = new FileStream(newLyricsFilePath, FileMode.CreateNew, FileAccess.Write))
-            {
-                await using (var binaryWriter = new BinaryWriter(fileStream, Encoding.UTF8))
-                {
-                    binaryWriter.Write(Utf8ToSelectedEncoding(lyrics));
-                    binaryWriter.Flush();
-                }
-            }
+            finally { if (File.Exists(temporaryPath)) File.Delete(temporaryPath); }
 
             info.IsSuccessful = true;
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (ErrorCodeException ex)
         {
@@ -124,20 +146,18 @@ public class LyricsDownloader : ILyricsDownloader, ISingletonDependency
     // Convert UTF-8 to selected encoding.
     private byte[] Utf8ToSelectedEncoding(LyricsItemCollection lyrics)
     {
-        var supportEncodings = Encoding.GetEncodings();
-
         // If the encoding is UTF-8 BOM, add the BOM to the front of the lyrics.
         if (_options.Provider.Lyric.Config.FileEncoding == "utf-8-bom")
         {
             return Encoding.UTF8.GetPreamble().Concat(lyrics.GetUtf8Bytes()).ToArray();
         }
 
-        if (supportEncodings.All(x => x.Name != _options.Provider.Lyric.Config.FileEncoding))
+        try
         {
-            throw new ErrorCodeException(ErrorCodes.NotSupportedFileEncoding);
+            return Encoding.Convert(Encoding.UTF8,
+                Encoding.GetEncoding(_options.Provider.Lyric.Config.FileEncoding), lyrics.GetUtf8Bytes());
         }
-
-        return Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(_options.Provider.Lyric.Config.FileEncoding), lyrics.GetUtf8Bytes());
+        catch (ArgumentException) { throw new ErrorCodeException(ErrorCodes.NotSupportedFileEncoding); }
     }
 
     private async Task LogFailedSongFilesInfo(string outFilePath, IEnumerable<MusicInfo> musicInfos)

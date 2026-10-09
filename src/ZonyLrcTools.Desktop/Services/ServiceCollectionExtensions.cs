@@ -1,5 +1,7 @@
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using ZonyLrcTools.Common.Configuration;
 using ZonyLrcTools.Common.Infrastructure.DependencyInject;
 using ZonyLrcTools.Common.Infrastructure.Logging;
 using ZonyLrcTools.Common.Infrastructure.Network;
@@ -20,9 +22,21 @@ public static class ServiceCollectionExtensions
         services.BeginAutoDependencyInject<IWarpHttpClient>();
 
         // Configure Common services
-        services.ConfigureConfiguration();
+        Directory.CreateDirectory(DesktopPreferences.DataDirectory);
+        if (!File.Exists(DesktopPreferences.ConfigPath))
+        {
+            var defaults = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "config.yaml"))
+                .Replace("isSkipExistLyricFiles: false", "isSkipExistLyricFiles: true");
+            File.WriteAllText(DesktopPreferences.ConfigPath, defaults);
+        }
+        var configuration = new ConfigurationBuilder()
+            .AddYamlFile(DesktopPreferences.ConfigPath).Build();
+        services.Configure<GlobalOptions>(configuration);
+        services.AddSingleton(DesktopPreferences.Load());
         services.ConfigureLocalization();
         services.ConfigureToolService();
+        services.AddHttpClient(DefaultWarpHttpClient.HttpClientNameConstant,
+            client => client.Timeout = TimeSpan.FromSeconds(30));
 
         // Configure Desktop localization
         // Note: Don't set ResourcesPath here because the embedded resource name is
@@ -45,6 +59,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<LyricsDownloadViewModel>();
         services.AddSingleton<AlbumDownloadViewModel>();
         services.AddSingleton<SettingsViewModel>();
+        services.AddSingleton<ManualDownloadViewModel>();
+        services.AddSingleton<LogsViewModel>();
 
         return services;
     }
@@ -54,6 +70,8 @@ public static class ServiceCollectionExtensions
     /// </summary>
     public static void InitializeLanguage(string? preferredCulture = null)
     {
+        var preferences = DesktopPreferences.Load();
+        preferredCulture ??= preferences.FollowSystemLanguage ? null : preferences.Culture;
         CultureInfo culture;
 
         if (!string.IsNullOrEmpty(preferredCulture))
@@ -72,5 +90,7 @@ public static class ServiceCollectionExtensions
 
         CultureInfo.CurrentCulture = culture;
         CultureInfo.CurrentUICulture = culture;
+        CultureInfo.DefaultThreadCurrentCulture = culture;
+        CultureInfo.DefaultThreadCurrentUICulture = culture;
     }
 }

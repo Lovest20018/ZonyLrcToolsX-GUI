@@ -1,3 +1,22 @@
+# ZonyLrcToolsX Windows GUI
+
+基于 [real-zony/ZonyLrcToolsX](https://github.com/real-zony/ZonyLrcToolsX) 的 Windows 图形界面版本。
+日常操作通过界面完成，无需命令行；x64 免安装包包含 .NET 运行时。
+
+- 批量扫描音乐文件夹，下载同名 `.lrc` 歌词。
+- 单曲匹配与预览，确认后保存歌词。
+- 专辑封面下载、停止任务、失败重试及失败列表导出。
+- 图形化设置歌词源、优先级、翻译、编码、已有歌词跳过和 HTTP 代理。
+- 运行日志查看及导出。
+
+详细操作、功能范围及构建方法见 [Windows GUI 使用说明](./WINDOWS-GUI.md)。
+源码位于 `src/ZonyLrcTools.Desktop`，发布脚本为 `scripts/Publish-WindowsGui.ps1`。
+使用 .NET 10 SDK 构建发布包后，双击 `ZonyLrcTools.Desktop.exe` 运行。
+
+本地生成的 EXE、ZIP 和 SDK 缓存不纳入 Git。源码附带 12 项本地自动化测试及 1 项真实联网下载测试。
+
+## 上游说明
+
 English | [简体中文](./docs/zh_CN.md)
 
 # Disclaimer

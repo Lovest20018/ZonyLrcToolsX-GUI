@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="Avalonia.Headless.XUnit" />
+    <ProjectReference Include="..\..\src\ZonyLrcTools.Desktop\ZonyLrcTools.Desktop.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\ZonyLrcTools.Tests\MusicFiles\曾经艺也 - 荀彧(纯音乐版).mp3" Link="Sample.mp3" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

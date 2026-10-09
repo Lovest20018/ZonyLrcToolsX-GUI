@@ -10,6 +10,7 @@ internal static class Program
     public static void Main(string[] args)
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 
         BuildAvaloniaApp()
             .StartWithClassicDesktopLifetime(args);

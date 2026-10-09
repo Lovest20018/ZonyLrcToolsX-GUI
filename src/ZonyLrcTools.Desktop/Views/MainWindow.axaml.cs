@@ -33,6 +33,12 @@ public partial class MainWindow : Window
             case 3:
                 viewModel.CurrentPage = services.GetRequiredService<SettingsViewModel>();
                 break;
+            case 4:
+                viewModel.CurrentPage = services.GetRequiredService<ManualDownloadViewModel>();
+                break;
+            case 5:
+                viewModel.CurrentPage = services.GetRequiredService<LogsViewModel>();
+                break;
         }
     }
 }

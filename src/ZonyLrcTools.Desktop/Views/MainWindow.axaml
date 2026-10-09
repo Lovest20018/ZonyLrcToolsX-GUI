@@ -142,6 +142,18 @@
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource MusicNoteIcon}" Width="16" Height="16" />
+                            <TextBlock Text="单曲歌词" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ListBoxItem>
+                    <ListBoxItem>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource SettingsIcon}" Width="16" Height="16" />
+                            <TextBlock Text="运行日志" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </ListBoxItem>
                 </ListBox>
             </DockPanel>
         </Border>
@@ -163,6 +175,12 @@
                     </DataTemplate>
                     <DataTemplate DataType="vm:SettingsViewModel">
                         <pages:SettingsPage />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:ManualDownloadViewModel">
+                        <pages:ManualDownloadPage />
+                    </DataTemplate>
+                    <DataTemplate DataType="vm:LogsViewModel">
+                        <pages:LogsPage />
                     </DataTemplate>
                 </ContentControl.DataTemplates>
             </ContentControl>
