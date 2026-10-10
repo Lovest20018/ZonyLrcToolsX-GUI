@@ -38,7 +38,7 @@ public class LocalizeExtension : MarkupExtension
             return Default ?? "[NO_KEY]";
         }
 
-        return new Binding($"[{Key}]") { Source = new LocalizedText(), Mode = BindingMode.OneWay };
+        return new Binding($"[{Key}]") { Source = LocalizedText.Shared, Mode = BindingMode.OneWay };
     }
 }
 

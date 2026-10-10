@@ -32,6 +32,6 @@ public partial class LogsViewModel : ViewModelBase
             await File.WriteAllLinesAsync(path, lines, new UTF8Encoding(true));
             await _dialogs.ShowMessageAsync(Text["Work_LogExported"], path);
         }
-        catch (Exception ex) { await _dialogs.ShowMessageAsync(Text["Work_ExportError"], ex.Message); }
+        catch (Exception ex) { await _dialogs.ShowMessageAsync(Text["Common_Error"], Text.Format("Work_ExportError", ex.Message)); }
     }
 }

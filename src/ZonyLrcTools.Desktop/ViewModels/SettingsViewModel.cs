@@ -280,7 +280,7 @@ public partial class SettingsViewModel : ViewModelBase
 
 public partial class LyricsProviderSettingViewModel : ObservableObject
 {
-    public LocalizedText Text { get; } = new();
+    public LocalizedText Text { get; } = LocalizedText.Shared;
     public LyricsProviderSettingViewModel() => Text.CollectionChanged += (_, _) => OnPropertyChanged(nameof(DisplayName));
     public string DisplayName => Text["Work_" + Name];
     [ObservableProperty]

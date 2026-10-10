@@ -7,7 +7,7 @@ namespace ZonyLrcTools.Desktop.ViewModels;
 /// </summary>
 public abstract partial class ViewModelBase : ObservableObject
 {
-    public Infrastructure.Localization.LocalizedText Text { get; } = new();
+    public Infrastructure.Localization.LocalizedText Text { get; } = Infrastructure.Localization.LocalizedText.Shared;
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsNotBusy))]
     private bool _isBusy;

@@ -102,6 +102,7 @@ public partial class LyricsDownloadViewModel : ViewModelBase
             OnPropertyChanged(nameof(CanStartDownload));
             OnPropertyChanged(nameof(ScanSummary));
             StartDownloadCommand.NotifyCanExecuteChanged();
+            NotifyFailures();
         };
         PropertyChanged += (_, e) =>
         {
