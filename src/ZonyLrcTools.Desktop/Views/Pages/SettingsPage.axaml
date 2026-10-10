@@ -1,43 +1,116 @@
-<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels" x:Class="ZonyLrcTools.Desktop.Views.Pages.SettingsPage" x:DataType="vm:SettingsViewModel">
- <Grid RowDefinitions="Auto,*,Auto">
-  <TextBlock Text="{Binding SettingsTitle}" Classes="title" Margin="0,0,0,16"/>
-  <ScrollViewer Grid.Row="1"><StackPanel Spacing="16">
-   <Border Classes="card"><StackPanel Spacing="12">
-    <TextBlock Text="{Binding Text[Work_Output]}" FontSize="18" FontWeight="SemiBold"/>
-    <CheckBox Content="{Binding Text[Work_Translation]}" IsChecked="{Binding IsTranslationEnabled}"/>
-    <CheckBox Content="{Binding Text[Work_Merge]}" IsChecked="{Binding IsOneLineMode}" IsEnabled="{Binding IsTranslationEnabled}"/>
-    <TextBlock Text="{Binding Text[Work_MergeHint]}" Classes="secondary" IsVisible="{Binding !IsTranslationEnabled}"/>
-    <TextBlock Text="{Binding Text[Work_Existing]}" FontWeight="SemiBold"/>
-    <WrapPanel><RadioButton Content="{Binding Text[Work_Skip]}" IsChecked="{Binding SkipExistingLyrics}" GroupName="Existing" Margin="0,0,24,8"/><RadioButton Content="{Binding Text[Work_Replace]}" IsChecked="{Binding ReplaceExistingLyrics}" GroupName="Existing" Margin="0,0,0,8"/></WrapPanel>
-    <StackPanel Orientation="Horizontal" Spacing="12"><TextBlock Text="{Binding Text[Work_Encoding]}" VerticalAlignment="Center"/><ComboBox ItemsSource="{Binding AvailableEncodings}" SelectedItem="{Binding SelectedEncoding}" Width="160"/></StackPanel>
-   </StackPanel></Border>
-   <Border Classes="card"><StackPanel Spacing="12">
-    <TextBlock Text="{Binding Text[Work_Sources]}" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="{Binding Text[Work_PriorityHint]}" Classes="secondary"/>
-    <Grid ColumnDefinitions="*,100,120"><TextBlock Grid.Column="1" Text="{Binding Text[Work_Enabled]}"/><TextBlock Grid.Column="2" Text="{Binding Text[Work_Priority]}"/></Grid>
-    <ItemsControl ItemsSource="{Binding LyricsProviders}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:LyricsProviderSettingViewModel">
-     <Border BorderBrush="{DynamicResource SeparatorBrush}" BorderThickness="0,0,0,1" Padding="0,8"><Grid ColumnDefinitions="*,100,120">
-      <StackPanel VerticalAlignment="Center"><TextBlock Text="{Binding DisplayName}"/><TextBlock Text="{Binding Name}" Classes="secondary"/></StackPanel>
-      <CheckBox Grid.Column="1" IsChecked="{Binding IsEnabled}" Content="{Binding Text[Work_Enabled]}"/>
-      <NumericUpDown Grid.Column="2" Value="{Binding Priority}" Minimum="1" Maximum="99" Width="100" FormatString="0" IsEnabled="{Binding IsEnabled}" HorizontalAlignment="Left"/>
-     </Grid></Border>
-    </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
-   </StackPanel></Border>
-   <Border Classes="card"><StackPanel Spacing="12">
-    <TextBlock Text="{Binding Text[Work_Network]}" FontSize="18" FontWeight="SemiBold"/>
-    <CheckBox Content="{Binding SettingsProxyEnable}" IsChecked="{Binding IsProxyEnabled}"/>
-    <Grid ColumnDefinitions="*,120" IsEnabled="{Binding IsProxyEnabled}">
-     <StackPanel Spacing="6" Margin="0,0,12,0"><TextBlock Text="{Binding Text[Work_ProxyAddress]}"/><TextBox Text="{Binding ProxyIp}"/></StackPanel>
-     <StackPanel Grid.Column="1" Spacing="6"><TextBlock Text="{Binding Text[Work_ProxyPort]}"/><NumericUpDown Value="{Binding ProxyPort}" Minimum="1" Maximum="65535" FormatString="0"/></StackPanel>
-    </Grid><TextBlock Text="{Binding Text[Work_ProxyRestart]}" Classes="secondary"/>
-   </StackPanel></Border>
-   <Border Classes="card"><StackPanel Spacing="12">
-    <TextBlock Text="{Binding Text[Work_Appearance]}" FontSize="18" FontWeight="SemiBold"/>
-    <Button Content="{Binding ThemeButtonText}" Command="{Binding ToggleThemeCommand}"/>
-    <TextBlock Text="{Binding SettingsLanguage}" FontWeight="SemiBold"/>
-    <CheckBox Content="{Binding SettingsFollowSystem}" IsChecked="{Binding FollowSystemLanguage}"/>
-    <StackPanel Orientation="Horizontal" Spacing="24" IsEnabled="{Binding !FollowSystemLanguage}"><RadioButton Content="{Binding SettingsChinese}" GroupName="Language" IsChecked="{Binding IsChineseSelected}"/><RadioButton Content="{Binding SettingsEnglish}" GroupName="Language" IsChecked="{Binding IsEnglishSelected}"/></StackPanel>
-   </StackPanel></Border>
-  </StackPanel></ScrollViewer>
-  <Border Grid.Row="2" Classes="card" Margin="0,12,0,0" Padding="12"><Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding SaveStatus}" Classes="secondary" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" IsVisible="{Binding !HasSaveError}"/><TextBlock Text="{Binding SaveStatus}" Foreground="{DynamicResource ErrorColorBrush}" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" IsVisible="{Binding HasSaveError}"/><Button Grid.Column="1" Content="{Binding SettingsReset}" Command="{Binding ResetToDefaultsCommand}"/></Grid></Border>
- </Grid>
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels"
+             x:Class="ZonyLrcTools.Desktop.Views.Pages.SettingsPage" x:DataType="vm:SettingsViewModel">
+  <Grid RowDefinitions="Auto,*,Auto">
+    <StackPanel Spacing="5" Margin="0,0,0,20">
+      <TextBlock Text="{Binding SettingsTitle}" Classes="title"/>
+      <TextBlock Text="{Binding Text[Work_SettingsDescription]}" Classes="secondary"/>
+    </StackPanel>
+    <ScrollViewer x:Name="SettingsScroll" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Spacing="20" MaxWidth="760" Width="{Binding #SettingsScroll.Viewport.Width}" HorizontalAlignment="Left">
+        <StackPanel>
+          <TextBlock Text="{Binding Text[Work_Output]}" Classes="group-title"/>
+          <Border Classes="settings-surface">
+            <StackPanel>
+              <Border Classes="setting-row"><Grid ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center" Margin="0,0,16,0"><TextBlock Text="{Binding Text[Work_Translation]}"/><TextBlock Text="{Binding Text[Work_TranslationHint]}" Classes="secondary" FontSize="11" Margin="0,3,0,0"/></StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsTranslationEnabled}" AutomationProperties.Name="{Binding Text[Work_Translation]}"/>
+              </Grid></Border>
+              <Border Classes="setting-row"><Grid ColumnDefinitions="*,Auto">
+                <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
+                  <TextBlock Text="{Binding Text[Work_Merge]}" TextWrapping="Wrap"/>
+                  <TextBlock Text="{Binding Text[Work_MergeDetail]}" IsVisible="{Binding IsTranslationEnabled}" Classes="secondary" FontSize="11" Margin="0,3,0,0"/>
+                  <TextBlock Text="{Binding Text[Work_MergeHint]}" IsVisible="{Binding !IsTranslationEnabled}" Classes="secondary" FontSize="11" Margin="0,3,0,0"/>
+                </StackPanel>
+                <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsOneLineMode}" IsEnabled="{Binding IsTranslationEnabled}" AutomationProperties.Name="{Binding Text[Work_Merge]}"/>
+              </Grid></Border>
+              <Border Classes="setting-row"><Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="{Binding Text[Work_Existing]}" VerticalAlignment="Center"/>
+                <Border Grid.Column="1" Background="{DynamicResource ContentAreaBrush}" BorderBrush="{DynamicResource SeparatorBrush}" BorderThickness="1" CornerRadius="6" Padding="3">
+                  <StackPanel Orientation="Horizontal" Spacing="3">
+                    <RadioButton Classes="segment" Content="{Binding Text[Work_SkipShort]}" IsChecked="{Binding SkipExistingLyrics}" GroupName="Existing" ToolTip.Tip="{Binding Text[Work_Skip]}"/>
+                    <RadioButton Classes="segment" Content="{Binding Text[Work_ReplaceShort]}" IsChecked="{Binding ReplaceExistingLyrics}" GroupName="Existing" ToolTip.Tip="{Binding Text[Work_Replace]}"/>
+                  </StackPanel>
+                </Border>
+              </Grid></Border>
+              <Border Classes="setting-row" BorderThickness="0"><Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="{Binding Text[Work_Encoding]}" VerticalAlignment="Center"/>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding AvailableEncodings}" SelectedItem="{Binding SelectedEncoding}" Width="160" AutomationProperties.Name="{Binding Text[Work_Encoding]}"/>
+              </Grid></Border>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+        <StackPanel>
+          <TextBlock Text="{Binding Text[Work_Sources]}" Classes="group-title"/>
+          <TextBlock Text="{Binding Text[Work_PriorityHint]}" Classes="secondary" FontSize="11" Margin="2,0,0,8"/>
+          <Border Classes="settings-surface" ClipToBounds="True"><StackPanel>
+            <Border Background="{DynamicResource TableHeaderBrush}" BorderBrush="{DynamicResource SeparatorBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+              <Grid ColumnDefinitions="*,64,90">
+                <TextBlock Text="{Binding Text[Work_Source]}" Classes="secondary" FontSize="11"/>
+                <TextBlock Grid.Column="1" Text="{Binding Text[Work_Enabled]}" Classes="secondary" FontSize="11"/>
+                <TextBlock Grid.Column="2" Text="{Binding Text[Work_Priority]}" Classes="secondary" FontSize="11"/>
+              </Grid>
+            </Border>
+            <ItemsControl ItemsSource="{Binding LyricsProviders}"><ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:LyricsProviderSettingViewModel">
+                <Border BorderBrush="{DynamicResource SeparatorBrush}" BorderThickness="0,0,0,1" Padding="16,8" MinHeight="56">
+                  <Grid ColumnDefinitions="*,64,90">
+                    <StackPanel VerticalAlignment="Center" Spacing="2" Margin="0,0,8,0">
+                      <TextBlock Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Text="{Binding Name}" Classes="secondary" FontSize="11"/>
+                    </StackPanel>
+                    <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsEnabled}" AutomationProperties.Name="{Binding DisplayName}"/>
+                    <NumericUpDown Grid.Column="2" Value="{Binding Priority}" Minimum="1" Maximum="99" Width="90"
+                                   FormatString="0" IsEnabled="{Binding IsEnabled}" AutomationProperties.Name="{Binding DisplayName}"/>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate></ItemsControl>
+          </StackPanel></Border>
+        </StackPanel>
+        <StackPanel>
+          <TextBlock Text="{Binding Text[Work_Network]}" Classes="group-title"/>
+          <Border Classes="settings-surface"><StackPanel>
+            <Border Classes="setting-row"><Grid ColumnDefinitions="*,Auto">
+              <StackPanel VerticalAlignment="Center" Margin="0,0,16,0"><TextBlock Text="{Binding SettingsProxyEnable}"/><TextBlock Text="{Binding Text[Work_ProxyRestart]}" Classes="secondary" FontSize="11" Margin="0,3,0,0"/></StackPanel>
+              <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsProxyEnabled}" AutomationProperties.Name="{Binding SettingsProxyEnable}"/>
+            </Grid></Border>
+            <Border Classes="setting-row"><Grid ColumnDefinitions="*,Auto" IsEnabled="{Binding IsProxyEnabled}">
+              <TextBlock Text="{Binding Text[Work_ProxyAddress]}" VerticalAlignment="Center"/>
+              <TextBox Grid.Column="1" Text="{Binding ProxyIp}" Width="200" AutomationProperties.Name="{Binding Text[Work_ProxyAddress]}"/>
+            </Grid></Border>
+            <Border Classes="setting-row" BorderThickness="0"><Grid ColumnDefinitions="*,Auto" IsEnabled="{Binding IsProxyEnabled}">
+              <TextBlock Text="{Binding Text[Work_ProxyPort]}" VerticalAlignment="Center"/>
+              <NumericUpDown Grid.Column="1" Value="{Binding ProxyPort}" Minimum="1" Maximum="65535" FormatString="0" Width="116" AutomationProperties.Name="{Binding Text[Work_ProxyPort]}"/>
+            </Grid></Border>
+          </StackPanel></Border>
+        </StackPanel>
+        <StackPanel>
+          <TextBlock Text="{Binding Text[Work_Appearance]}" Classes="group-title"/>
+          <Border Classes="settings-surface"><StackPanel>
+            <Border Classes="setting-row"><Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{Binding Text[Work_Theme]}" VerticalAlignment="Center"/>
+              <Button Grid.Column="1" Content="{Binding ThemeButtonText}" Command="{Binding ToggleThemeCommand}"/>
+            </Grid></Border>
+            <Border Classes="setting-row"><Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{Binding SettingsFollowSystem}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,16,0"/>
+              <ToggleSwitch Grid.Column="1" IsChecked="{Binding FollowSystemLanguage}" AutomationProperties.Name="{Binding SettingsFollowSystem}"/>
+            </Grid></Border>
+            <Border Classes="setting-row" BorderThickness="0"><Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{Binding SettingsLanguage}" VerticalAlignment="Center"/>
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" IsEnabled="{Binding !FollowSystemLanguage}">
+                <RadioButton Classes="segment" Content="{Binding SettingsChinese}" GroupName="Language" IsChecked="{Binding IsChineseSelected}"/>
+                <RadioButton Classes="segment" Content="{Binding SettingsEnglish}" GroupName="Language" IsChecked="{Binding IsEnglishSelected}"/>
+              </StackPanel>
+            </Grid></Border>
+          </StackPanel></Border>
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,14,0,0">
+      <TextBlock Text="{Binding SaveStatus}" Classes="secondary" VerticalAlignment="Center" Margin="0,0,12,0" IsVisible="{Binding !HasSaveError}"/>
+      <TextBlock Text="{Binding SaveStatus}" Foreground="{DynamicResource ErrorColorBrush}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" IsVisible="{Binding HasSaveError}"/>
+      <Button Grid.Column="1" Classes="quiet" Content="{Binding SettingsReset}" Command="{Binding ResetToDefaultsCommand}"/>
+    </Grid>
+  </Grid>
 </UserControl>

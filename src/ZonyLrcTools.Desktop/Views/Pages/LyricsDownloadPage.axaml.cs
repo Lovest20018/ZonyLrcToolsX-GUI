@@ -40,12 +40,13 @@ public partial class LyricsDownloadPage : UserControl
     }
     private void UpdatePreviewLayout()
     {
-        var wide = Bounds.Width >= 940;
+        var wide = Bounds.Width >= 840;
         var open = DataContext is LyricsDownloadViewModel { IsPreviewOpen: true, IsLyrics: true };
-        Workspace.ColumnDefinitions[1].Width = new GridLength(wide && open ? 312 : 0);
-        Grid.SetRow(PreviewPanel, wide ? 3 : 1);
-        Grid.SetRowSpan(PreviewPanel, wide ? 1 : 3);
-        PreviewPanel.Width = wide ? 300 : Math.Min(320, Bounds.Width);
+        Workspace.ColumnDefinitions[1].Width = new GridLength(wide && open ? 274 : 0);
+        // The narrow drawer stays inside the list so Stop and the task footer remain reachable.
+        Grid.SetRow(PreviewPanel, 4);
+        Grid.SetRowSpan(PreviewPanel, 1);
+        PreviewPanel.Width = wide ? 260 : Math.Min(280, Bounds.Width);
         PreviewPanel.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right;
         PreviewPanel.Margin = new Thickness(0);
     }

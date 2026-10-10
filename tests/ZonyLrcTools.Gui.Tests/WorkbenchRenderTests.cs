@@ -2,8 +2,10 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using Avalonia.Media.Imaging;
+using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
 using ZonyLrcTools.Desktop;
 using ZonyLrcTools.Desktop.Infrastructure.Localization;
@@ -14,6 +16,67 @@ namespace ZonyLrcTools.Gui.Tests;
 
 public partial class UiTests
 {
+    [AvaloniaFact]
+    public void RenderRefinedControlStateGallery()
+    {
+        var folder = Environment.GetEnvironmentVariable("ZONY_GUI_TEST_ARTIFACTS");
+        if (folder == null) return;
+        Directory.CreateDirectory(folder);
+        var originalTheme = Application.Current!.RequestedThemeVariant;
+        try
+        {
+            foreach (var dark in new[] { false, true })
+            {
+                Application.Current.RequestedThemeVariant = dark ? ThemeVariant.Dark : ThemeVariant.Light;
+                var controls = new List<(string State, Control[] Controls)>();
+                var panel = new StackPanel { Spacing = 18, Margin = new Thickness(24) };
+                panel.Children.Add(new TextBlock { Text = "Actual Avalonia controls · normal / hover / pressed / disabled / keyboard focus", FontSize = 16 });
+                foreach (var state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
+                {
+                    var row = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 12 };
+                    row.Children.Add(new TextBlock { Text = state, Width = 78, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center });
+                    var secondary = new Button { Content = "次操作 · Action", Width = 126 };
+                    var primary = new Button { Content = "开始 · Start", Width = 114, Classes = { "accent" } };
+                    var icon = new Button { Width = 32, Classes = { "quiet", "icon" },
+                        Content = new PathIcon { Data = (Geometry)Application.Current.FindResource("CopyIcon")!, Width = 16, Height = 16, Classes = { "outline" } } };
+                    var selected = new Button { Width = 142, Classes = { "nav", "active" },
+                        Content = new StackPanel { Orientation = Avalonia.Layout.Orientation.Horizontal, Spacing = 8,
+                            Children = { new PathIcon { Data = (Geometry)Application.Current.FindResource("HomeIcon")!, Width = 16, Height = 16, Classes = { "outline" } },
+                                new TextBlock { Text = "选中 · Active" } } } };
+                    var number = new NumericUpDown { Value = 2, Minimum = 1, Maximum = 32, Width = 90, FormatString = "0" };
+                    var combo = new ComboBox { ItemsSource = new[] { "utf-8", "utf-8-bom" }, SelectedIndex = 0, Width = 130 };
+                    var toggle = new ToggleSwitch { IsChecked = true };
+                    var elements = new Control[] { secondary, primary, icon, selected, number, combo, toggle };
+                    foreach (var element in elements) row.Children.Add(element);
+                    panel.Children.Add(row);
+                    controls.Add((state, elements));
+                }
+                var window = new Window { Content = panel, Width = 980, Height = 390 };
+                RenderOptions.SetTextRenderingMode(window, TextRenderingMode.Antialias);
+                window.Show();
+                foreach (var (state, elements) in controls)
+                foreach (var element in elements)
+                {
+                    if (state == "disabled") element.IsEnabled = false;
+                    if (state == "hover") ((IPseudoClasses)element.Classes).Set(":pointerover", true);
+                    if (state == "pressed") ((IPseudoClasses)element.Classes).Set(":pressed", true);
+                    if (state == "focus")
+                    {
+                        ((IPseudoClasses)element.Classes).Set(":focus-visible", true);
+                        ((IPseudoClasses)element.Classes).Set(":focus-within", true);
+                    }
+                }
+                Dispatcher.UIThread.RunJobs();
+                window.UpdateLayout();
+                using var bitmap = new RenderTargetBitmap(new PixelSize(980, 390), new Vector(96, 96));
+                bitmap.Render(window);
+                bitmap.Save(Path.Combine(folder, $"controls-{(dark ? "dark" : "light")}.png"));
+                window.Close();
+            }
+        }
+        finally { Application.Current.RequestedThemeVariant = originalTheme; }
+    }
+
     [AvaloniaFact]
     public async Task RenderWorkbenchMatrixAndPopulatedStates()
     {
@@ -42,6 +105,14 @@ public partial class UiTests
                 {
                     main.SelectedNavigationIndex = index;
                     await Capture($"{language}-{(dark ? "dark" : "light")}-{size.Width}x{size.Height}-page{index}", size);
+                    if (index == 5)
+                    {
+                        var scroll = window.GetVisualDescendants().OfType<ScrollViewer>()
+                            .Single(view => view.Name == "SettingsScroll");
+                        scroll.Offset = new Vector(0, Math.Max(0, scroll.Extent.Height - scroll.Viewport.Height));
+                        await Capture($"{language}-{(dark ? "dark" : "light")}-{size.Width}x{size.Height}-settings-bottom", size);
+                        scroll.Offset = default;
+                    }
                 }
             }
             var fixture = Path.Combine(folder, "render-fixture");

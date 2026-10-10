@@ -1,55 +1,117 @@
-<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels" xmlns:loc="using:ZonyLrcTools.Desktop.Infrastructure.Localization" x:Class="ZonyLrcTools.Desktop.Views.Pages.LyricsDownloadPage" x:DataType="vm:LyricsDownloadViewModel" KeyDown="OnKeyDown">
- <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
-  <StackPanel Spacing="4" Margin="0,0,0,16"><TextBlock Text="{Binding LyricsTitle}" Classes="title"/><TextBlock Text="{Binding LyricsDescription}" Classes="secondary"/></StackPanel>
-  <Border Grid.Row="1" Classes="card" Margin="0,0,0,12">
-   <StackPanel Spacing="8">
-    <TextBlock Text="{Binding Text[Work_Folder]}" FontWeight="SemiBold"/>
-    <Grid ColumnDefinitions="*,Auto,Auto,Auto"><TextBox Text="{Binding SelectedFolderPath}" Watermark="{Binding Text[Work_SelectFolder]}" IsReadOnly="True" Margin="0,0,8,0" ToolTip.Tip="{Binding SelectedFolderPath}"/><Button Grid.Column="1" Content="{Binding Text[Work_Browse]}" Command="{Binding SelectFolderCommand}"/>
-     <Button Grid.Column="2" Command="{Binding OpenFolderCommand}" ToolTip.Tip="{Binding Text[Work_OpenFolder]}" AutomationProperties.Name="{Binding Text[Work_OpenFolder]}" Margin="8,0,0,0" Width="36" Padding="6"><PathIcon Data="{StaticResource FolderIcon}" Width="16" Height="16"/></Button>
-     <Button Grid.Column="3" Command="{Binding CopyPathCommand}" ToolTip.Tip="{Binding Text[Work_CopyPath]}" AutomationProperties.Name="{Binding Text[Work_CopyPath]}" Margin="8,0,0,0" Width="36" Padding="6"><PathIcon Data="M7,2H21V16H18V5H7Z M3,7H16V22H3Z M6,10V19H13V10Z" Width="16" Height="16"/></Button></Grid>
-    <WrapPanel>
-     <Button Content="{Binding Text[Work_Start]}" Command="{Binding StartDownloadCommand}" Classes="accent" IsVisible="{Binding !IsDownloading}" Margin="0,0,8,4"/>
-     <Button Content="{Binding StopText}" Command="{Binding CancelDownloadCommand}" IsVisible="{Binding IsDownloading}" Margin="0,0,8,4"/>
-     <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,16,4"><TextBlock Text="{Binding Text[Work_Parallel]}" VerticalAlignment="Center"/><NumericUpDown x:Name="ConcurrencyInput" Value="{Binding ParallelCount}" IsEnabled="{Binding CanConfigure}" Minimum="1" Maximum="32" Increment="1" Width="104" FormatString="0"/><TextBlock Text="{Binding Text[Work_ParallelHint]}" Classes="secondary" VerticalAlignment="Center"/></StackPanel>
-    </WrapPanel>
-    <TextBlock Text="{Binding OutputPolicy}" Classes="secondary"/>
-   </StackPanel>
-  </Border>
-  <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,0,0,8">
-   <TextBlock Text="{Binding Text[Work_EditHint]}" IsVisible="{Binding IsLyrics}" Classes="secondary" Margin="0,0,8,0" VerticalAlignment="Center"/>
-   <TextBlock Text="{Binding Text[Work_AlbumEditHint]}" IsVisible="{Binding !IsLyrics}" Classes="secondary" Margin="0,0,8,0" VerticalAlignment="Center"/>
-   <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"><CheckBox Content="{Binding Text[Work_ShowPath]}" IsChecked="{Binding ShowPathColumn}"/><Button Content="{Binding Text[Work_Details]}" Command="{Binding ShowPreviewCommand}" IsVisible="{Binding IsLyrics}"/></StackPanel>
-  </Grid>
-  <Grid Grid.Row="3" ColumnDefinitions="*,0" x:Name="Workspace">
-   <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource SeparatorBrush}" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
-    <Panel>
-     <DataGrid x:Name="SongsGrid" ItemsSource="{Binding MusicFiles}" SelectedItem="{Binding SelectedMusicFile}" IsReadOnly="{Binding IsGridReadOnly}" AutoGenerateColumns="False" GridLinesVisibility="Horizontal" BorderThickness="0" CanUserReorderColumns="False">
-      <DataGrid.Columns>
-       <DataGridTextColumn x:DataType="vm:MusicFileViewModel" Header="{loc:Localize Column_SongName}" Binding="{Binding Name}" Width="*"/>
-       <DataGridTextColumn x:DataType="vm:MusicFileViewModel" Header="{loc:Localize Column_Artist}" Binding="{Binding Artist}" Width="150"/>
-       <DataGridTextColumn x:DataType="vm:MusicFileViewModel" Header="{loc:Localize Column_Status}" Binding="{Binding StatusMessage}" IsReadOnly="True" Width="110"/>
-       <DataGridTextColumn x:DataType="vm:MusicFileViewModel" Header="{loc:Localize Column_FilePath}" Binding="{Binding FilePath}" IsReadOnly="True" Width="250" IsVisible="False"/>
-      </DataGrid.Columns>
-     </DataGrid>
-     <Border IsVisible="{Binding HasNoFiles}" Background="{DynamicResource CardBackgroundBrush}" Margin="0,36,0,0" Padding="24" IsHitTestVisible="False"><TextBlock Text="{Binding EmptyStateText}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center"/></Border>
-    </Panel>
-   </Border>
-  </Grid>
-   <Border Grid.Row="3" x:Name="PreviewPanel" Width="300" HorizontalAlignment="Right" ClipToBounds="True" IsVisible="{Binding IsPreviewOpen}" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource ControlBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16" Margin="12,0,0,0">
-    <Grid RowDefinitions="Auto,Auto,Auto,*">
-     <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding Text[Work_Preview]}" FontWeight="SemiBold" VerticalAlignment="Center"/><Button Grid.Column="1" Content="{Binding Text[Work_Close]}" Command="{Binding ClosePreviewCommand}"/></Grid>
-     <TextBlock Grid.Row="1" Text="{Binding SelectedMusicFile.Name}" FontWeight="SemiBold" Margin="0,12,0,4" TextWrapping="Wrap"/>
-     <TextBlock Grid.Row="2" Text="{Binding SelectedMusicFile.FilePath}" MaxLines="2" TextTrimming="CharacterEllipsis" Classes="secondary" Margin="0,0,0,12" ToolTip.Tip="{Binding SelectedMusicFile.FilePath}"/>
-     <TextBox Grid.Row="3" Text="{Binding PreviewText}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels"
+             xmlns:loc="using:ZonyLrcTools.Desktop.Infrastructure.Localization"
+             x:Class="ZonyLrcTools.Desktop.Views.Pages.LyricsDownloadPage"
+             x:DataType="vm:LyricsDownloadViewModel" KeyDown="OnKeyDown">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.file-status"><Setter Property="Foreground" Value="{DynamicResource SecondaryBrush}"/><Setter Property="FontSize" Value="12"/></Style>
+    <Style Selector="TextBlock.file-status.success"><Setter Property="Foreground" Value="{DynamicResource SuccessColorBrush}"/></Style>
+    <Style Selector="TextBlock.file-status.failure"><Setter Property="Foreground" Value="{DynamicResource ErrorColorBrush}"/></Style>
+  </UserControl.Styles>
+  <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+    <StackPanel Spacing="5" Margin="0,0,0,20">
+      <TextBlock Text="{Binding LyricsTitle}" Classes="title"/>
+      <TextBlock Text="{Binding LyricsDescription}" Classes="secondary"/>
+    </StackPanel>
+    <Border Grid.Row="1" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource ControlBorderBrush}"
+            BorderThickness="1" CornerRadius="7" Padding="10,4,4,4">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+        <PathIcon Classes="outline" Data="{StaticResource FolderIcon}" Width="17" Height="17" Foreground="{DynamicResource SecondaryBrush}" Margin="0,0,8,0"/>
+        <TextBox Grid.Column="1" Classes="lyrics" Text="{Binding SelectedFolderPath}" Watermark="{Binding Text[Work_SelectFolder]}"
+                 IsReadOnly="True" MinHeight="32" Padding="0,6" Margin="0,0,8,0" ToolTip.Tip="{Binding SelectedFolderPath}"
+                 AutomationProperties.Name="{Binding Text[Work_Folder]}"/>
+        <Button Grid.Column="2" Content="{Binding Text[Work_Browse]}" Command="{Binding SelectFolderCommand}" MinHeight="32" Padding="10,4"/>
+        <Button Grid.Column="3" Classes="quiet icon" Command="{Binding OpenFolderCommand}" ToolTip.Tip="{Binding Text[Work_OpenFolder]}"
+                AutomationProperties.Name="{Binding Text[Work_OpenFolder]}" Margin="4,0,0,0"><PathIcon Classes="outline" Data="{StaticResource FolderIcon}" Width="16" Height="16"/></Button>
+        <Button Grid.Column="4" Classes="quiet icon" Command="{Binding CopyPathCommand}" ToolTip.Tip="{Binding Text[Work_CopyPath]}"
+                AutomationProperties.Name="{Binding Text[Work_CopyPath]}"><PathIcon Classes="outline" Data="{StaticResource CopyIcon}" Width="16" Height="16"/></Button>
+      </Grid>
+    </Border>
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,12,0,18">
+      <WrapPanel VerticalAlignment="Center" Margin="0,0,12,0">
+        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,12,0">
+          <TextBlock Text="{Binding Text[Work_Parallel]}" Classes="secondary" VerticalAlignment="Center"/>
+          <NumericUpDown x:Name="ConcurrencyInput" Value="{Binding ParallelCount}" IsEnabled="{Binding CanConfigure}"
+                         Minimum="1" Maximum="32" Increment="1" Width="90" FormatString="0"
+                         ToolTip.Tip="{Binding Text[Work_ParallelHint]}" AutomationProperties.Name="{Binding Text[Work_Parallel]}"/>
+        </StackPanel>
+        <TextBlock Text="{Binding OutputPolicy}" Classes="secondary" VerticalAlignment="Center" MaxWidth="300" Margin="0,4"/>
+      </WrapPanel>
+      <Button Grid.Column="1" Content="{Binding Text[Work_Start]}" Command="{Binding StartDownloadCommand}" Classes="accent"
+              IsVisible="{Binding !IsDownloading}" VerticalAlignment="Center"/>
+      <Button Grid.Column="1" Content="{Binding StopText}" Command="{Binding CancelDownloadCommand}"
+              IsVisible="{Binding IsDownloading}" VerticalAlignment="Center"/>
     </Grid>
-   </Border>
-  <Border Grid.Row="4" Classes="card" Margin="0,12,0,0" Padding="12">
-   <StackPanel Spacing="6">
-    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding CountsText}" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,8,0"/><StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"><Button Content="{Binding Text[Work_Retry]}" Command="{Binding RetryFailedCommand}" IsVisible="{Binding HasFailures}"/><Button Content="{Binding Text[Work_More]}"><Button.Flyout><MenuFlyout><MenuItem Header="{Binding Text[Work_ExportFailed]}" Command="{Binding ExportFailedCommand}" IsVisible="{Binding IsLyrics}" IsEnabled="{Binding HasFailures}"/><MenuItem Header="{Binding Text[Work_ExportCovers]}" Command="{Binding ExportFailedCommand}" IsVisible="{Binding !IsLyrics}" IsEnabled="{Binding HasFailures}"/></MenuFlyout></Button.Flyout></Button></StackPanel></Grid>
-    <ProgressBar Value="{Binding ProgressPercentage}" Maximum="100" Height="4" IsIndeterminate="{Binding IsScanning}"/>
-    <TextBlock Text="{Binding ScanSummary}" IsVisible="{Binding IsScanning}" Classes="secondary"/>
-    <TextBlock Text="{Binding TaskStatus}" Classes="secondary"/>
-   </StackPanel>
-  </Border>
- </Grid>
+    <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="0,0,0,9">
+      <StackPanel Spacing="3" Margin="0,0,12,0">
+        <TextBlock Text="{Binding Text[Work_SongList]}" FontWeight="SemiBold"/>
+        <TextBlock Text="{Binding Text[Work_EditHint]}" IsVisible="{Binding IsLyrics}" Classes="secondary" MaxLines="1" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Text[Work_EditHint]}"/>
+        <TextBlock Text="{Binding Text[Work_AlbumEditHint]}" IsVisible="{Binding !IsLyrics}" Classes="secondary" MaxLines="1" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Text[Work_AlbumEditHint]}"/>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <CheckBox Content="{Binding Text[Work_ShowPath]}" IsChecked="{Binding ShowPathColumn}" FontSize="12"/>
+        <Button Classes="quiet" Command="{Binding ShowPreviewCommand}" IsVisible="{Binding IsLyrics}" Padding="8,5">
+          <StackPanel Orientation="Horizontal" Spacing="6"><PathIcon Classes="outline" Data="{StaticResource PreviewIcon}" Width="16" Height="16"/><TextBlock Text="{Binding Text[Work_Details]}" FontSize="12"/></StackPanel>
+        </Button>
+        <Button Classes="quiet icon" ToolTip.Tip="{Binding Text[Work_More]}" AutomationProperties.Name="{Binding Text[Work_More]}">
+          <PathIcon Classes="outline" Data="{StaticResource MoreIcon}" Width="16" Height="16"/>
+          <Button.Flyout><MenuFlyout>
+            <MenuItem Header="{Binding Text[Work_ExportFailed]}" Command="{Binding ExportFailedCommand}" IsVisible="{Binding IsLyrics}" IsEnabled="{Binding HasFailures}"/>
+            <MenuItem Header="{Binding Text[Work_ExportCovers]}" Command="{Binding ExportFailedCommand}" IsVisible="{Binding !IsLyrics}" IsEnabled="{Binding HasFailures}"/>
+          </MenuFlyout></Button.Flyout>
+        </Button>
+      </StackPanel>
+    </Grid>
+    <Grid Grid.Row="4" ColumnDefinitions="*,0" x:Name="Workspace">
+      <Border Classes="settings-surface" ClipToBounds="True">
+        <Panel>
+          <DataGrid x:Name="SongsGrid" ItemsSource="{Binding MusicFiles}" SelectedItem="{Binding SelectedMusicFile}"
+                    IsReadOnly="{Binding IsGridReadOnly}" AutoGenerateColumns="False" GridLinesVisibility="Horizontal"
+                    BorderThickness="0" CanUserReorderColumns="False">
+            <DataGrid.Columns>
+              <DataGridTextColumn x:DataType="vm:MusicFileViewModel" Header="{loc:Localize Column_SongName}" Binding="{Binding Name}" Width="*"/>
+              <DataGridTextColumn x:DataType="vm:MusicFileViewModel" Header="{loc:Localize Column_Artist}" Binding="{Binding Artist}" Width="130" Foreground="{DynamicResource SecondaryBrush}" FontSize="12"/>
+              <DataGridTemplateColumn Header="{loc:Localize Column_Status}" IsReadOnly="True" Width="105">
+                <DataGridTemplateColumn.CellTemplate><DataTemplate x:DataType="vm:MusicFileViewModel">
+                  <TextBlock Text="{Binding StatusMessage}" Classes="file-status" Classes.success="{Binding IsSuccessful}" Classes.failure="{Binding IsFailure}" VerticalAlignment="Center"/>
+                </DataTemplate></DataGridTemplateColumn.CellTemplate>
+              </DataGridTemplateColumn>
+              <DataGridTextColumn x:DataType="vm:MusicFileViewModel" Header="{loc:Localize Column_FilePath}" Binding="{Binding FilePath}" IsReadOnly="True" Width="250" IsVisible="False"/>
+            </DataGrid.Columns>
+          </DataGrid>
+          <Border IsVisible="{Binding HasNoFiles}" Background="{DynamicResource CardBackgroundBrush}" Margin="0,35,0,0" Padding="24" IsHitTestVisible="False">
+            <TextBlock Text="{Binding EmptyStateText}" Classes="secondary" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          </Border>
+        </Panel>
+      </Border>
+    </Grid>
+    <Border Grid.Row="4" x:Name="PreviewPanel" Width="260" HorizontalAlignment="Right" ClipToBounds="True"
+            IsVisible="{Binding IsPreviewOpen}" Classes="settings-surface" Padding="16">
+      <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+        <Grid ColumnDefinitions="*,Auto" Margin="0,-4,-4,12">
+          <TextBlock Text="{Binding Text[Work_Preview]}" Classes="secondary" VerticalAlignment="Center"/>
+          <Button Grid.Column="1" Classes="quiet icon" Command="{Binding ClosePreviewCommand}"
+                  ToolTip.Tip="{Binding Text[Work_Close]}" AutomationProperties.Name="{Binding Text[Work_Close]}">
+            <PathIcon Classes="outline" Data="{StaticResource CloseIcon}" Width="16" Height="16"/>
+          </Button>
+        </Grid>
+        <TextBlock Grid.Row="1" Text="{Binding SelectedMusicFile.Name}" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,4" TextWrapping="Wrap" MaxLines="3" TextTrimming="CharacterEllipsis"/>
+        <TextBlock Grid.Row="2" Text="{Binding SelectedMusicFile.Artist}" Classes="secondary" Margin="0,0,0,4" MaxLines="1" TextTrimming="CharacterEllipsis"/>
+        <TextBlock Grid.Row="3" Text="{Binding SelectedMusicFile.FilePath}" MaxLines="2" TextTrimming="CharacterEllipsis" Classes="secondary" FontSize="11" Margin="0,0,0,20" ToolTip.Tip="{Binding SelectedMusicFile.FilePath}"/>
+        <TextBox Grid.Row="4" Classes="lyrics" Text="{Binding PreviewText}" IsReadOnly="True" AcceptsReturn="True"
+                 TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{Binding Text[Work_Preview]}"/>
+      </Grid>
+    </Border>
+    <StackPanel Grid.Row="5" Margin="0,12,0,0" Spacing="7">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Text="{Binding CountsText}" Classes="secondary" VerticalAlignment="Center" Margin="0,0,8,0"/>
+        <Button Grid.Column="1" Classes="quiet" Content="{Binding Text[Work_Retry]}" Command="{Binding RetryFailedCommand}"
+                IsVisible="{Binding HasFailures}" Padding="8,4" MinHeight="28"/>
+      </Grid>
+      <ProgressBar Value="{Binding ProgressPercentage}" Maximum="100" Height="3" IsIndeterminate="{Binding IsScanning}"/>
+      <TextBlock Text="{Binding ScanSummary}" IsVisible="{Binding IsScanning}" Classes="secondary"/>
+      <TextBlock Text="{Binding TaskStatus}" Classes="secondary"/>
+    </StackPanel>
+  </Grid>
 </UserControl>

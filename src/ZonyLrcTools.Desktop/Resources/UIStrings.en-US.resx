@@ -386,4 +386,11 @@ Matching and download activity will appear here.</value></data>
   <data name="Work_KuWo" xml:space="preserve"><value>Kuwo Music</value></data>
   <data name="Work_KuGou" xml:space="preserve"><value>Kugou Music</value></data>
   <data name="Work_LoadingPreview" xml:space="preserve"><value>Reading local lyrics…</value></data>
+  <data name="Work_SongList" xml:space="preserve"><value>Song list</value></data>
+  <data name="Work_SettingsDescription" xml:space="preserve"><value>Adjust lyrics output and source preferences. Changes save automatically.</value></data>
+  <data name="Work_TranslationHint" xml:space="preserve"><value>Include translations when the source provides them.</value></data>
+  <data name="Work_MergeDetail" xml:space="preserve"><value>Show the original and translation on the same line.</value></data>
+  <data name="Work_SkipShort" xml:space="preserve"><value>Skip</value></data>
+  <data name="Work_ReplaceShort" xml:space="preserve"><value>Replace</value></data>
+  <data name="Work_Source" xml:space="preserve"><value>Source</value></data>
 </root>

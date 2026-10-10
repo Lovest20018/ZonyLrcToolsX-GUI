@@ -2,30 +2,28 @@
  xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels" xmlns:pages="using:ZonyLrcTools.Desktop.Views.Pages"
  x:Class="ZonyLrcTools.Desktop.Views.MainWindow" x:DataType="vm:MainWindowViewModel"
  Title="{Binding Title}" Icon="avares://ZonyLrcTools.Desktop/Assets/zony.ico"
- Width="1200" Height="800" MinWidth="900" MinHeight="600" WindowStartupLocation="CenterScreen">
- <Window.Styles>
-  <Style Selector="Button.nav"><Setter Property="HorizontalAlignment" Value="Stretch"/><Setter Property="HorizontalContentAlignment" Value="Left"/><Setter Property="Padding" Value="12,10"/><Setter Property="BorderThickness" Value="0"/><Setter Property="Background" Value="Transparent"/></Style>
-  <Style Selector="Button.nav.active"><Setter Property="Background" Value="{DynamicResource NavActiveBackgroundBrush}"/><Setter Property="Foreground" Value="{DynamicResource AppAccentBrush}"/></Style>
- </Window.Styles>
- <Grid ColumnDefinitions="204,*" x:Name="ShellGrid">
+ Width="1200" Height="800" MinWidth="900" MinHeight="600" WindowStartupLocation="CenterScreen"
+ RenderOptions.TextRenderingMode="Antialias">
+
+ <Grid ColumnDefinitions="180,*" x:Name="ShellGrid">
   <Border Background="{DynamicResource NavigationBackgroundBrush}" BorderBrush="{DynamicResource SeparatorBrush}" BorderThickness="0,0,1,0">
-   <Grid RowDefinitions="Auto,*,Auto" Margin="12,24,12,16">
+   <Grid RowDefinitions="Auto,*,Auto" Margin="10,24,10,16">
     <StackPanel Spacing="8" Margin="4,0,4,24">
-     <StackPanel Orientation="Horizontal" Spacing="8"><Image Source="avares://ZonyLrcTools.Desktop/Assets/logo-app-64.png" Width="32" Height="32"/><TextBlock Text="ZonyLrcTools X" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/></StackPanel>
-     <TextBlock Text="{Binding Text[Work_Tagline]}" Classes="secondary" Margin="40,0,0,0"/>
+     <StackPanel Orientation="Horizontal" Spacing="8"><Image Source="avares://ZonyLrcTools.Desktop/Assets/logo-app-64.png" Width="28" Height="28"/><TextBlock Text="ZonyLrcTools X" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/></StackPanel>
+     <TextBlock Text="{Binding Text[Work_Tagline]}" Classes="secondary" Margin="36,0,0,0" FontSize="11"/>
     </StackPanel>
     <StackPanel Grid.Row="1" Spacing="4">
-     <Button Classes="nav" Classes.active="{Binding IsHome}" Command="{Binding NavigateCommand}" CommandParameter="0"><StackPanel Orientation="Horizontal" Spacing="12"><PathIcon Data="{StaticResource HomeIcon}" Width="18" Height="18"/><TextBlock Text="{Binding NavHome}"/></StackPanel></Button>
-     <Button Classes="nav" Classes.active="{Binding IsBatch}" Command="{Binding NavigateCommand}" CommandParameter="1"><StackPanel Orientation="Horizontal" Spacing="12"><PathIcon Data="{StaticResource MusicNoteIcon}" Width="18" Height="18"/><TextBlock Text="{Binding Text[Work_BatchTitle]}"/></StackPanel></Button>
-     <Button Classes="nav" Classes.active="{Binding IsManual}" Command="{Binding NavigateCommand}" CommandParameter="2"><StackPanel Orientation="Horizontal" Spacing="12"><PathIcon Data="{StaticResource DownloadIcon}" Width="18" Height="18"/><TextBlock Text="{Binding Text[Work_ManualTitle]}"/></StackPanel></Button>
-     <Button Classes="nav" Classes.active="{Binding IsAlbum}" Command="{Binding NavigateCommand}" CommandParameter="3"><StackPanel Orientation="Horizontal" Spacing="12"><PathIcon Data="{StaticResource ImageIcon}" Width="18" Height="18"/><TextBlock Text="{Binding Text[Work_AlbumTitle]}"/></StackPanel></Button>
+     <Button Classes="nav" Classes.active="{Binding IsHome}" Command="{Binding NavigateCommand}" CommandParameter="0"><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Classes="outline" Data="{StaticResource HomeIcon}" Width="18" Height="18"/><TextBlock Text="{Binding NavHome}"/></StackPanel></Button>
+     <Button Classes="nav" Classes.active="{Binding IsBatch}" Command="{Binding NavigateCommand}" CommandParameter="1"><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Classes="outline" Data="{StaticResource MusicNoteIcon}" Width="18" Height="18"/><TextBlock Text="{Binding Text[Work_BatchTitle]}"/></StackPanel></Button>
+     <Button Classes="nav" Classes.active="{Binding IsManual}" Command="{Binding NavigateCommand}" CommandParameter="2"><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Classes="outline" Data="{StaticResource DownloadIcon}" Width="18" Height="18"/><TextBlock Text="{Binding Text[Work_ManualTitle]}"/></StackPanel></Button>
+     <Button Classes="nav" Classes.active="{Binding IsAlbum}" Command="{Binding NavigateCommand}" CommandParameter="3"><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Classes="outline" Data="{StaticResource ImageIcon}" Width="18" Height="18"/><TextBlock Text="{Binding Text[Work_AlbumTitle]}"/></StackPanel></Button>
     </StackPanel>
     <StackPanel Grid.Row="2" Spacing="4">
-     <Button Classes="nav" Classes.active="{Binding IsLogs}" Command="{Binding NavigateCommand}" CommandParameter="4"><StackPanel Orientation="Horizontal" Spacing="12"><PathIcon Data="{StaticResource LogIcon}" Width="18" Height="18"/><TextBlock Text="{Binding Text[Work_LogsTitle]}"/></StackPanel></Button>
-     <Button Classes="nav" Classes.active="{Binding IsSettings}" Command="{Binding NavigateCommand}" CommandParameter="5"><StackPanel Orientation="Horizontal" Spacing="12"><PathIcon Data="{StaticResource SettingsIcon}" Width="18" Height="18"/><TextBlock Text="{Binding NavSettings}"/></StackPanel></Button>
-     <Button Classes="nav" Command="{Binding HelpCommand}" Content="{Binding Text[Work_Help]}"/>
+     <Button Classes="nav" Classes.active="{Binding IsLogs}" Command="{Binding NavigateCommand}" CommandParameter="4"><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Classes="outline" Data="{StaticResource LogIcon}" Width="18" Height="18"/><TextBlock Text="{Binding Text[Work_LogsTitle]}"/></StackPanel></Button>
+     <Button Classes="nav" Classes.active="{Binding IsSettings}" Command="{Binding NavigateCommand}" CommandParameter="5"><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Classes="outline" Data="{StaticResource SettingsIcon}" Width="18" Height="18"/><TextBlock Text="{Binding NavSettings}"/></StackPanel></Button>
+     <Button Classes="nav" Command="{Binding HelpCommand}"><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Classes="outline" Data="{StaticResource HelpIcon}" Width="18" Height="18"/><TextBlock Text="{Binding Text[Work_Help]}"/></StackPanel></Button>
      <Border Height="1" Background="{DynamicResource SeparatorBrush}" Margin="0,8"/>
-     <Button Classes="nav" Command="{Binding ToggleThemeCommand}"><StackPanel Orientation="Horizontal" Spacing="12"><PathIcon Data="{StaticResource MoonIcon}" Width="18" Height="18" IsVisible="{Binding !IsDarkTheme}"/><PathIcon Data="{StaticResource SunIcon}" Width="18" Height="18" IsVisible="{Binding IsDarkTheme}"/><TextBlock Text="{Binding ThemeButtonText}"/></StackPanel></Button>
+     <Button Classes="nav" Command="{Binding ToggleThemeCommand}"><StackPanel Orientation="Horizontal" Spacing="10"><PathIcon Classes="outline" Data="{StaticResource MoonIcon}" Width="18" Height="18" IsVisible="{Binding !IsDarkTheme}"/><PathIcon Classes="outline" Data="{StaticResource SunIcon}" Width="18" Height="18" IsVisible="{Binding IsDarkTheme}"/><TextBlock Text="{Binding ThemeButtonText}"/></StackPanel></Button>
     </StackPanel>
    </Grid>
   </Border>

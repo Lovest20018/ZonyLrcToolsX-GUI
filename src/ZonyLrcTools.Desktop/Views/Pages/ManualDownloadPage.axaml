@@ -19,7 +19,7 @@
       <DataGridTextColumn x:DataType="lyrics:LyricsItem" Header="{loc:Localize Work_Timestamp}" Binding="{Binding OriginalTimeline}" Width="110"/>
       <DataGridTextColumn x:DataType="lyrics:LyricsItem" Header="{loc:Localize Work_LyricsText}" Binding="{Binding LyricText}" Width="*"/>
      </DataGrid.Columns></DataGrid>
-     <TextBox Text="{Binding Preview}" IsVisible="{Binding ShowRawLrc}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+     <TextBox Classes="lyrics" Text="{Binding Preview}" IsVisible="{Binding ShowRawLrc}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
      <TextBlock Text="{Binding Text[Work_ManualEmpty]}" IsVisible="{Binding HasNoResult}" Classes="secondary" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Panel>
    </Grid>

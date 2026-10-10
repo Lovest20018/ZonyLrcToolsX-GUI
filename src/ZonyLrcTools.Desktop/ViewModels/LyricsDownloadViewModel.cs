@@ -345,9 +345,9 @@ public partial class MusicFileViewModel : ObservableObject
     [ObservableProperty] private string _filePath = "";
     [ObservableProperty] private string _name = "";
     [ObservableProperty] private string _artist = "";
-    [ObservableProperty] private bool _isProcessed;
-    [ObservableProperty] private bool _isSuccessful;
-    [ObservableProperty] private bool _isSkipped;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFailure))] private bool _isProcessed;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFailure))] private bool _isSuccessful;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(IsFailure))] private bool _isSkipped;
     [ObservableProperty] private string? _statusMessage;
     public bool IsFailure => IsProcessed && !IsSuccessful && !IsSkipped;
     public void RefreshStatus(LocalizedText text) => StatusMessage =

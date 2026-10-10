@@ -386,4 +386,11 @@
   <data name="Work_KuWo" xml:space="preserve"><value>酷我音乐</value></data>
   <data name="Work_KuGou" xml:space="preserve"><value>酷狗音乐</value></data>
   <data name="Work_LoadingPreview" xml:space="preserve"><value>正在读取本地歌词…</value></data>
+  <data name="Work_SongList" xml:space="preserve"><value>歌曲列表</value></data>
+  <data name="Work_SettingsDescription" xml:space="preserve"><value>调整歌词输出和来源偏好，修改会自动保存。</value></data>
+  <data name="Work_TranslationHint" xml:space="preserve"><value>歌词源提供译文时一并保存</value></data>
+  <data name="Work_MergeDetail" xml:space="preserve"><value>每行同时显示原文和对应译文</value></data>
+  <data name="Work_SkipShort" xml:space="preserve"><value>跳过</value></data>
+  <data name="Work_ReplaceShort" xml:space="preserve"><value>替换</value></data>
+  <data name="Work_Source" xml:space="preserve"><value>来源</value></data>
 </root>

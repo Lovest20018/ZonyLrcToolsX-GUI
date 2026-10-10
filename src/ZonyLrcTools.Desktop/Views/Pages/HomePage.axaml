@@ -1,7 +1,14 @@
 <UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels" x:Class="ZonyLrcTools.Desktop.Views.Pages.HomePage" x:DataType="vm:HomeViewModel">
- <ScrollViewer><StackPanel Spacing="24" MaxWidth="820" HorizontalAlignment="Left">
+ <ScrollViewer><StackPanel Spacing="24" HorizontalAlignment="Stretch">
   <StackPanel Spacing="8"><TextBlock Text="{Binding Text[Work_HomeTitle]}" Classes="title"/><TextBlock Text="{Binding Text[Work_HomeDescription]}" Foreground="{DynamicResource SecondaryBrush}" TextWrapping="Wrap"/></StackPanel>
-  <Border Classes="card"><StackPanel Spacing="16"><TextBlock Text="{Binding Text[Work_HomeSteps]}" TextWrapping="Wrap" LineHeight="32"/><WrapPanel><Button Content="{Binding Text[Work_BatchTitle]}" Command="{Binding NavigateCommand}" CommandParameter="1" Classes="accent" Margin="0,0,12,8"/><Button Content="{Binding Text[Work_ManualTitle]}" Command="{Binding NavigateCommand}" CommandParameter="2" Margin="0,0,0,8"/></WrapPanel></StackPanel></Border>
+  <Border Classes="card"><StackPanel Spacing="16"><TextBlock Text="{Binding Text[Work_HomeSteps]}" TextWrapping="Wrap" LineHeight="32"/><Grid ColumnDefinitions="*,*" Margin="0,8,0,0">
+    <Button Command="{Binding NavigateCommand}" CommandParameter="1" Classes="accent" MinHeight="100" Margin="0,0,12,0">
+     <StackPanel Spacing="12"><PathIcon Classes="outline" Data="{StaticResource MusicNoteIcon}" Width="24" Height="24"/><TextBlock Text="{Binding Text[Work_BatchTitle]}" FontSize="16"/></StackPanel>
+    </Button>
+    <Button Grid.Column="1" Command="{Binding NavigateCommand}" CommandParameter="2" MinHeight="100">
+     <StackPanel Spacing="12"><PathIcon Classes="outline" Data="{StaticResource DownloadIcon}" Width="24" Height="24"/><TextBlock Text="{Binding Text[Work_ManualTitle]}" FontSize="16"/></StackPanel>
+    </Button>
+   </Grid></StackPanel></Border>
   <TextBlock Text="{Binding Text[Work_HomeTip]}" Classes="secondary"/><TextBlock Text="{Binding Version}" Classes="secondary"/>
  </StackPanel></ScrollViewer>
 </UserControl>

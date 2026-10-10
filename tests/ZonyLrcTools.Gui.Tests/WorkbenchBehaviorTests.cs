@@ -1,9 +1,11 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Headless;
 using Avalonia.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Avalonia.Headless.XUnit;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Microsoft.Extensions.Options;
 using ZonyLrcTools.Common;
 using ZonyLrcTools.Common.Configuration;
@@ -18,6 +20,100 @@ namespace ZonyLrcTools.Gui.Tests;
 
 public partial class UiTests
 {
+    [AvaloniaFact]
+    public void CompactConcurrencyTemplatePreservesInputBoundsAndDownloadLockout()
+    {
+        var model = Batch(new FixtureDownloader());
+        var page = new ZonyLrcTools.Desktop.Views.Pages.LyricsDownloadPage { DataContext = model };
+        var window = new Window { Content = page, Width = 672, Height = 552 };
+        window.Show();
+        try
+        {
+            Dispatcher.UIThread.RunJobs();
+            var input = page.FindControl<NumericUpDown>("ConcurrencyInput")!;
+            var parts = input.GetVisualDescendants().OfType<Control>().ToArray();
+            var increase = parts.OfType<RepeatButton>().Single(button => button.Name == "PART_IncreaseButton");
+            var decrease = parts.OfType<RepeatButton>().Single(button => button.Name == "PART_DecreaseButton");
+            var editor = parts.OfType<TextBox>().Single(box => box.Name == "PART_TextBox");
+            model.ParallelCount = 2;
+            Click(increase);
+            Assert.Equal(3, model.ParallelCount);
+            editor.Focus();
+            window.KeyPressQwerty(PhysicalKey.ArrowUp, RawInputModifiers.None);
+            window.KeyReleaseQwerty(PhysicalKey.ArrowUp, RawInputModifiers.None);
+            Assert.Equal(4, model.ParallelCount);
+            editor.Text = "32";
+            window.KeyPressQwerty(PhysicalKey.Enter, RawInputModifiers.None);
+            window.KeyReleaseQwerty(PhysicalKey.Enter, RawInputModifiers.None);
+            Dispatcher.UIThread.RunJobs();
+            Assert.Equal(32, model.ParallelCount);
+            Assert.False(increase.IsEnabled);
+            Click(increase);
+            Assert.Equal(32, model.ParallelCount);
+            model.ParallelCount = 1;
+            Assert.False(decrease.IsEnabled);
+            model.ParallelCount = 2;
+            model.IsDownloading = true;
+            Assert.False(input.IsEnabled);
+            Click(decrease);
+            Assert.Equal(2, model.ParallelCount);
+
+            void Click(Control control)
+            {
+                window.UpdateLayout();
+                var point = control.TranslatePoint(new Point(control.Bounds.Width / 2, control.Bounds.Height / 2), window)!.Value;
+                window.MouseDown(point, MouseButton.Left);
+                window.MouseUp(point, MouseButton.Left);
+                Dispatcher.UIThread.RunJobs();
+            }
+        }
+        finally { window.Close(); }
+    }
+
+    [Fact]
+    public void FileOutcomeChangesNotifyTheFailurePresentation()
+    {
+        var row = new MusicFileViewModel();
+        var notifications = new List<string>();
+        row.PropertyChanged += (_, args) => notifications.Add(args.PropertyName!);
+        row.IsProcessed = true;
+        Assert.True(row.IsFailure);
+        Assert.Contains(nameof(MusicFileViewModel.IsFailure), notifications);
+        notifications.Clear();
+        row.IsSuccessful = true;
+        Assert.False(row.IsFailure);
+        Assert.Contains(nameof(MusicFileViewModel.IsFailure), notifications);
+        notifications.Clear();
+        row.IsSuccessful = false;
+        notifications.Clear();
+        row.IsSkipped = true;
+        Assert.False(row.IsFailure);
+        Assert.Contains(nameof(MusicFileViewModel.IsFailure), notifications);
+    }
+
+    [AvaloniaFact]
+    public void NarrowPreviewKeepsStopActionAboveTheDrawer()
+    {
+        var model = Batch(new FixtureDownloader());
+        model.IsDownloading = true;
+        model.IsPreviewOpen = true;
+        var page = new ZonyLrcTools.Desktop.Views.Pages.LyricsDownloadPage { DataContext = model };
+        var window = new Window { Content = page, Width = 672, Height = 552 };
+        window.Show();
+        try
+        {
+            Dispatcher.UIThread.RunJobs();
+            window.UpdateLayout();
+            var stop = page.GetVisualDescendants().OfType<Button>()
+                .Single(button => ReferenceEquals(button.Command, model.CancelDownloadCommand));
+            var drawer = page.FindControl<Border>("PreviewPanel")!;
+            var stopBottom = stop.TranslatePoint(new Avalonia.Point(0, stop.Bounds.Height), page)!.Value.Y;
+            var drawerTop = drawer.TranslatePoint(default, page)!.Value.Y;
+            Assert.True(drawerTop >= stopBottom, $"Drawer starts at {drawerTop}; stop ends at {stopBottom}.");
+        }
+        finally { window.Close(); }
+    }
+
     [AvaloniaFact]
     public void OpenGridHeadersFollowLanguageChanges()
     {
