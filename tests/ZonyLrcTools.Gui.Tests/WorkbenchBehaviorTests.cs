@@ -21,6 +21,45 @@ namespace ZonyLrcTools.Gui.Tests;
 public partial class UiTests
 {
     [AvaloniaFact]
+    public void StatusHeaderClickSortsDisplayedRowsAscendingAndDescending()
+    {
+        var model = Batch(new FixtureDownloader());
+        foreach (var status in new[] { "Pending", "Success", "Failed" })
+            model.MusicFiles.Add(new MusicFileViewModel { Name = status, StatusMessage = status });
+        var page = new ZonyLrcTools.Desktop.Views.Pages.LyricsDownloadPage { DataContext = model };
+        var window = new Window { Content = page, Width = 972, Height = 752 };
+        window.Show();
+        try
+        {
+            Dispatcher.UIThread.RunJobs();
+            window.UpdateLayout();
+            var grid = page.FindControl<DataGrid>("SongsGrid")!;
+            var header = grid.GetVisualDescendants().OfType<DataGridColumnHeader>()
+                .Single(control => Equals(control.Content, grid.Columns[2].Header));
+            Assert.Equal(new[] { "Pending", "Success", "Failed" }, DisplayedStatuses());
+            ClickHeader();
+            Assert.Equal(new[] { "Failed", "Pending", "Success" }, DisplayedStatuses());
+            ClickHeader();
+            Assert.Equal(new[] { "Success", "Pending", "Failed" }, DisplayedStatuses());
+
+            string?[] DisplayedStatuses() => grid.GetVisualDescendants().OfType<DataGridRow>()
+                .Where(row => row.IsVisible && row.DataContext is MusicFileViewModel)
+                .OrderBy(row => row.Index)
+                .Select(row => ((MusicFileViewModel)row.DataContext!).StatusMessage).ToArray();
+
+            void ClickHeader()
+            {
+                var point = header.TranslatePoint(new Point(header.Bounds.Width / 2, header.Bounds.Height / 2), window)!.Value;
+                window.MouseDown(point, MouseButton.Left);
+                window.MouseUp(point, MouseButton.Left);
+                Dispatcher.UIThread.RunJobs();
+                window.UpdateLayout();
+            }
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
     public void CompactConcurrencyTemplatePreservesInputBoundsAndDownloadLockout()
     {
         var model = Batch(new FixtureDownloader());

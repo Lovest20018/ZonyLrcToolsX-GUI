@@ -72,7 +72,7 @@
             <DataGrid.Columns>
               <DataGridTextColumn x:DataType="vm:MusicFileViewModel" Header="{loc:Localize Column_SongName}" Binding="{Binding Name}" Width="*"/>
               <DataGridTextColumn x:DataType="vm:MusicFileViewModel" Header="{loc:Localize Column_Artist}" Binding="{Binding Artist}" Width="130" Foreground="{DynamicResource SecondaryBrush}" FontSize="12"/>
-              <DataGridTemplateColumn Header="{loc:Localize Column_Status}" IsReadOnly="True" Width="105">
+              <DataGridTemplateColumn Header="{loc:Localize Column_Status}" SortMemberPath="StatusMessage" IsReadOnly="True" Width="105">
                 <DataGridTemplateColumn.CellTemplate><DataTemplate x:DataType="vm:MusicFileViewModel">
                   <TextBlock Text="{Binding StatusMessage}" Classes="file-status" Classes.success="{Binding IsSuccessful}" Classes.failure="{Binding IsFailure}" VerticalAlignment="Center"/>
                 </DataTemplate></DataGridTemplateColumn.CellTemplate>
