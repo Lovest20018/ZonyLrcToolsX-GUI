@@ -39,6 +39,10 @@
 
 ## 界面精修
 
+GUI 1.1.0（2026-10-10）：统一浅深色控件状态、轮廓图标及紧凑设置布局，
+改善批量列表和本地歌词预览，保留状态表头的升降序排序。
+首页和 Windows 文件版本均使用 GUI 版本；上游下载核心仍为 4.0.3。
+
 侧栏为 180 像素，内容边距为 24 像素。按钮、输入框、表格与设置使用同一套浅深色
 主题；导航和辅助操作使用可随状态变色的轮廓图标，键盘焦点保持可见。
 数值输入为横向「− 数字 +」，仍支持键盘输入、上下方向键、上下限和任务运行时禁用。
@@ -104,8 +108,8 @@ dotnet test tests/ZonyLrcTools.Gui.Tests --filter "FullyQualifiedName!~LiveDownl
 ```powershell
 git checkout dev
 git pull --ff-only
-git tag -a gui-v1.0.0 -m "Windows GUI 1.0.0"
-git push origin gui-v1.0.0
+git tag -a gui-v1.1.0 -m "Windows GUI 1.1.0"
+git push origin gui-v1.1.0
 ```
 
 后续递增版本号，不移动已发布标签。也可在 GitHub 新建并发布 `gui-v` 标签的 Release，
@@ -116,7 +120,7 @@ git push origin gui-v1.0.0
 
 ```powershell
 ./scripts/Publish-WindowsGui.ps1 -OutputDirectory ./dist
-./scripts/Build-WindowsGuiInstaller.ps1 -Version 1.0.0 -OutputDirectory ./dist
+./scripts/Build-WindowsGuiInstaller.ps1 -Version 1.1.0 -OutputDirectory ./dist
 ```
 
 ## 来源

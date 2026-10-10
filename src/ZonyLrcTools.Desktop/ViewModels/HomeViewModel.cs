@@ -14,7 +14,7 @@ public partial class HomeViewModel : ViewModelBase
     private string _description = "选择文件夹，自动匹配并下载歌词；也可以输入歌名，预览后保存。";
 
     [ObservableProperty]
-    private string _version = "4.0.3 · Windows GUI";
+    private string _version = $"{typeof(HomeViewModel).Assembly.GetName().Version?.ToString(3)} · Windows GUI";
 
     [RelayCommand]
     private void Navigate(string target)
