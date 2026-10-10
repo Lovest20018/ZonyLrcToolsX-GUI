@@ -28,4 +28,3 @@ public sealed class LocalizedText : INotifyPropertyChanged, INotifyCollectionCha
     public string Format(string key, params object[] arguments) =>
         string.Format(Culture, this[key], arguments);
 }
-
