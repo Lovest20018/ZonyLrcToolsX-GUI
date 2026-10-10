@@ -258,4 +258,132 @@
   <data name="Error_NoMusicFiles" xml:space="preserve">
     <value>在所选文件夹中没有找到任何音乐文件。</value>
   </data>
+  <data name="Work_BatchTitle" xml:space="preserve"><value>批量歌词</value></data>
+  <data name="Work_BatchDescription" xml:space="preserve"><value>为本地音乐匹配歌词，保存到歌曲旁的 .lrc 文件。</value></data>
+  <data name="Work_AlbumTitle" xml:space="preserve"><value>专辑封面</value></data>
+  <data name="Work_AlbumDescription" xml:space="preserve"><value>从网易云音乐匹配封面，保存到歌曲旁的 .png 文件；已有封面自动跳过。</value></data>
+  <data name="Work_ManualTitle" xml:space="preserve"><value>单曲歌词</value></data>
+  <data name="Work_ManualDescription" xml:space="preserve"><value>没有本地音乐文件也可以匹配、检查并保存歌词。</value></data>
+  <data name="Work_LogsTitle" xml:space="preserve"><value>运行日志</value></data>
+  <data name="Work_SettingsTitle" xml:space="preserve"><value>设置</value></data>
+  <data name="Work_Help" xml:space="preserve"><value>帮助</value></data>
+  <data name="Work_Tagline" xml:space="preserve"><value>歌词下载工具</value></data>
+  <data name="Work_SelectFolder" xml:space="preserve"><value>选择音乐文件夹</value></data>
+  <data name="Work_Folder" xml:space="preserve"><value>音乐文件夹</value></data>
+  <data name="Work_Browse" xml:space="preserve"><value>选择文件夹</value></data>
+  <data name="Work_Parallel" xml:space="preserve"><value>并行数</value></data>
+  <data name="Work_ParallelHint" xml:space="preserve"><value>建议 1–2</value></data>
+  <data name="Work_Start" xml:space="preserve"><value>开始下载</value></data>
+  <data name="Work_Stop" xml:space="preserve"><value>停止下载</value></data>
+  <data name="Work_Stopping" xml:space="preserve"><value>停止中…</value></data>
+  <data name="Work_OpenFolder" xml:space="preserve"><value>打开目录</value></data>
+  <data name="Work_CopyPath" xml:space="preserve"><value>复制路径</value></data>
+  <data name="Work_ShowPath" xml:space="preserve"><value>显示路径列</value></data>
+  <data name="Work_EditHint" xml:space="preserve"><value>空闲时可用 F2 或双击修改歌名、歌手。单击选择只读取本地歌词。</value></data>
+  <data name="Work_AlbumEditHint" xml:space="preserve"><value>空闲时可用 F2 或双击修改歌名、歌手。</value></data>
+  <data name="Work_Preview" xml:space="preserve"><value>本地歌词</value></data>
+  <data name="Work_Close" xml:space="preserve"><value>关闭</value></data>
+  <data name="Work_Details" xml:space="preserve"><value>查看歌词</value></data>
+  <data name="Work_SelectPreview" xml:space="preserve"><value>选择一首歌曲查看本地歌词。</value></data>
+  <data name="Work_NoLocalLyrics" xml:space="preserve"><value>尚无歌词，下载后可预览。</value></data>
+  <data name="Work_PreviewError" xml:space="preserve"><value>无法读取歌词：{0}</value></data>
+  <data name="Work_Retry" xml:space="preserve"><value>重试失败</value></data>
+  <data name="Work_More" xml:space="preserve"><value>更多</value></data>
+  <data name="Work_ExportFailed" xml:space="preserve"><value>导出歌词失败列表</value></data>
+  <data name="Work_ExportCovers" xml:space="preserve"><value>导出封面失败列表</value></data>
+  <data name="Work_ExportFolder" xml:space="preserve"><value>选择失败列表保存目录</value></data>
+  <data name="Work_Exported" xml:space="preserve"><value>失败列表已保存：{0}</value></data>
+  <data name="Work_ExportError" xml:space="preserve"><value>导出失败：{0}</value></data>
+  <data name="Work_Counts" xml:space="preserve"><value>已处理 {0} / {1} · 成功 {2} · 跳过 {3} · 失败 {4} · 未完成 {5}</value></data>
+  <data name="Work_RetryCounts" xml:space="preserve"><value>本次重试 {0} / {1} · 成功 {2} · 跳过 {3} · 失败 {4} · 未完成 {5}</value></data>
+  <data name="Work_BatchReady" xml:space="preserve"><value>选择音乐文件夹，扫描后开始下载。</value></data>
+  <data name="Work_Scanning" xml:space="preserve"><value>正在扫描音乐文件…</value></data>
+  <data name="Work_ScanSummary" xml:space="preserve"><value>已扫描 {0} · 可识别 {1} · 未识别 {2}</value></data>
+  <data name="Work_ScanReady" xml:space="preserve"><value>扫描 {0} 个文件，可下载 {1} 首，未识别 {2} 个。</value></data>
+  <data name="Work_ScanEmpty" xml:space="preserve"><value>扫描 {0} 个文件，可识别 {1} 首，未识别 {2} 个。请更换文件夹。</value></data>
+  <data name="Work_ScanError" xml:space="preserve"><value>扫描失败：{0}</value></data>
+  <data name="Work_EmptyBatch" xml:space="preserve"><value>请选择音乐文件夹
+支持 MP3、FLAC、M4A 等格式；命名示例：歌手 - 歌名.mp3</value></data>
+  <data name="Work_NoRecognized" xml:space="preserve"><value>没有可下载的歌曲
+请更换文件夹，或检查标签及文件命名。</value></data>
+  <data name="Work_OutputSkip" xml:space="preserve"><value>保存到歌曲旁 · 跳过已有文件</value></data>
+  <data name="Work_OutputReplace" xml:space="preserve"><value>保存到歌曲旁 · 替换已有文件</value></data>
+  <data name="Work_DownloadingLyrics" xml:space="preserve"><value>正在下载歌词…</value></data>
+  <data name="Work_DownloadingCovers" xml:space="preserve"><value>正在下载封面…</value></data>
+  <data name="Work_Completed" xml:space="preserve"><value>本次下载已完成。失败项可单独重试。</value></data>
+  <data name="Work_Stopped" xml:space="preserve"><value>已停止。未完成歌曲可再次开始下载。</value></data>
+  <data name="Work_DownloadError" xml:space="preserve"><value>下载出错：{0}</value></data>
+  <data name="Work_EnableSource" xml:space="preserve"><value>请在设置中启用至少一个歌词源。</value></data>
+  <data name="Work_Song" xml:space="preserve"><value>歌名</value></data>
+  <data name="Work_Artist" xml:space="preserve"><value>歌手</value></data>
+  <data name="Work_SongHint" xml:space="preserve"><value>例如：七里香</value></data>
+  <data name="Work_ArtistHint" xml:space="preserve"><value>例如：周杰伦</value></data>
+  <data name="Work_Match" xml:space="preserve"><value>匹配歌词</value></data>
+  <data name="Work_StopMatch" xml:space="preserve"><value>停止匹配</value></data>
+  <data name="Work_SaveFolder" xml:space="preserve"><value>选择歌词保存目录</value></data>
+  <data name="Work_SaveLocation" xml:space="preserve"><value>保存位置</value></data>
+  <data name="Work_FileName" xml:space="preserve"><value>文件名</value></data>
+  <data name="Work_Save" xml:space="preserve"><value>保存 .lrc</value></data>
+  <data name="Work_Raw" xml:space="preserve"><value>原始 LRC</value></data>
+  <data name="Work_Timestamp" xml:space="preserve"><value>时间戳</value></data>
+  <data name="Work_LyricsText" xml:space="preserve"><value>歌词正文</value></data>
+  <data name="Work_QuerySummary" xml:space="preserve"><value>提交查询：{0} / {1} · 来源 {2} · {3} 行</value></data>
+  <data name="Work_QueryNote" xml:space="preserve"><value>显示的是提交查询，不代表已核实的上游曲目身份。</value></data>
+  <data name="Work_ManualReady" xml:space="preserve"><value>输入歌名和歌手，匹配后检查并保存。</value></data>
+  <data name="Work_RequiredQuery" xml:space="preserve"><value>请填写歌名和歌手，以提高匹配准确度。</value></data>
+  <data name="Work_InputChanged" xml:space="preserve"><value>输入已更改，请重新匹配歌词。</value></data>
+  <data name="Work_MatchingSource" xml:space="preserve"><value>正在从 {0} 匹配…</value></data>
+  <data name="Work_Matched" xml:space="preserve"><value>匹配完成，请检查歌词后保存。</value></data>
+  <data name="Work_NoMatch" xml:space="preserve"><value>没有匹配到歌词。请修改歌名、歌手，或检查歌词源设置。</value></data>
+  <data name="Work_MatchStopped" xml:space="preserve"><value>已停止匹配。</value></data>
+  <data name="Work_MatchError" xml:space="preserve"><value>匹配失败：{0}</value></data>
+  <data name="Work_SourceError" xml:space="preserve"><value>{0} 匹配失败：{1}</value></data>
+  <data name="Work_ManualEmpty" xml:space="preserve"><value>匹配成功后，歌词显示在这里。</value></data>
+  <data name="Work_OverwriteTitle" xml:space="preserve"><value>替换歌词</value></data>
+  <data name="Work_OverwritePrompt" xml:space="preserve"><value>文件已存在，是否替换？
+{0}</value></data>
+  <data name="Work_Saved" xml:space="preserve"><value>已保存：{0}</value></data>
+  <data name="Work_SaveError" xml:space="preserve"><value>保存失败：{0}</value></data>
+  <data name="Work_Output" xml:space="preserve"><value>歌词输出</value></data>
+  <data name="Work_Translation" xml:space="preserve"><value>下载翻译歌词</value></data>
+  <data name="Work_Merge" xml:space="preserve"><value>原文与翻译合并为一行</value></data>
+  <data name="Work_MergeHint" xml:space="preserve"><value>开启翻译后可用；已保存的合并偏好会保留。</value></data>
+  <data name="Work_Existing" xml:space="preserve"><value>已有歌词</value></data>
+  <data name="Work_Skip" xml:space="preserve"><value>跳过已有文件</value></data>
+  <data name="Work_Replace" xml:space="preserve"><value>替换已有文件</value></data>
+  <data name="Work_Encoding" xml:space="preserve"><value>文件编码</value></data>
+  <data name="Work_Sources" xml:space="preserve"><value>歌词源</value></data>
+  <data name="Work_Enabled" xml:space="preserve"><value>启用</value></data>
+  <data name="Work_Priority" xml:space="preserve"><value>优先级</value></data>
+  <data name="Work_PriorityHint" xml:space="preserve"><value>数字越小越先尝试；禁用后不会请求该来源。</value></data>
+  <data name="Work_Network" xml:space="preserve"><value>网络</value></data>
+  <data name="Work_ProxyAddress" xml:space="preserve"><value>代理地址</value></data>
+  <data name="Work_ProxyPort" xml:space="preserve"><value>端口</value></data>
+  <data name="Work_ProxyRestart" xml:space="preserve"><value>代理设置在重启后生效。</value></data>
+  <data name="Work_Appearance" xml:space="preserve"><value>外观与语言</value></data>
+  <data name="Work_Theme" xml:space="preserve"><value>切换主题</value></data>
+  <data name="Work_Autosave" xml:space="preserve"><value>设置自动保存。</value></data>
+  <data name="Work_SettingsSaved" xml:space="preserve"><value>已保存。</value></data>
+  <data name="Work_SettingsError" xml:space="preserve"><value>设置保存失败：{0}</value></data>
+  <data name="Work_LogsDescription" xml:space="preserve"><value>保留最近 1000 条记录，可导出为文本。</value></data>
+  <data name="Work_Clear" xml:space="preserve"><value>清空</value></data>
+  <data name="Work_ExportLogs" xml:space="preserve"><value>导出日志</value></data>
+  <data name="Work_LogTime" xml:space="preserve"><value>时间</value></data>
+  <data name="Work_LogLevel" xml:space="preserve"><value>级别</value></data>
+  <data name="Work_LogMessage" xml:space="preserve"><value>信息</value></data>
+  <data name="Work_LogEmpty" xml:space="preserve"><value>暂无日志
+开始匹配或下载后，运行记录会显示在这里。</value></data>
+  <data name="Work_LogFolder" xml:space="preserve"><value>选择日志保存目录</value></data>
+  <data name="Work_LogExported" xml:space="preserve"><value>日志已导出</value></data>
+  <data name="Work_HomeTitle" xml:space="preserve"><value>为你的音乐，补上歌词</value></data>
+  <data name="Work_HomeDescription" xml:space="preserve"><value>批量处理本地音乐，或输入歌名下载单曲歌词。</value></data>
+  <data name="Work_HomeSteps" xml:space="preserve"><value>1 选择文件夹或输入歌名
+2 检查歌名、歌手及来源设置
+3 开始下载，检查歌词后保存</value></data>
+  <data name="Work_HomeTip" xml:space="preserve"><value>批量歌词保存在歌曲旁；单曲歌词由你选择保存位置。</value></data>
+  <data name="Work_NetEase" xml:space="preserve"><value>网易云音乐</value></data>
+  <data name="Work_QQ" xml:space="preserve"><value>QQ 音乐</value></data>
+  <data name="Work_KuWo" xml:space="preserve"><value>酷我音乐</value></data>
+  <data name="Work_KuGou" xml:space="preserve"><value>酷狗音乐</value></data>
+  <data name="Work_LoadingPreview" xml:space="preserve"><value>正在读取本地歌词…</value></data>
 </root>

@@ -31,7 +31,7 @@ public static class UiTestApp
     }
 }
 
-public class UiTests
+public partial class UiTests
 {
     private static MainWindow CreateWindow() => new()
     {
@@ -49,8 +49,8 @@ public class UiTests
         try
         {
             var types = new[] { typeof(HomeViewModel), typeof(LyricsDownloadViewModel),
-                typeof(AlbumDownloadViewModel), typeof(SettingsViewModel), typeof(ManualDownloadViewModel),
-                typeof(LogsViewModel) };
+                typeof(ManualDownloadViewModel), typeof(AlbumDownloadViewModel), typeof(LogsViewModel),
+                typeof(SettingsViewModel) };
             for (var index = 0; index < types.Length; index++)
             {
                 main.SelectedNavigationIndex = index;

@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Text;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -11,436 +13,343 @@ using ZonyLrcTools.Common.Lyrics;
 using ZonyLrcTools.Common.TagInfo;
 using ZonyLrcTools.Desktop.Infrastructure.Localization;
 using ZonyLrcTools.Desktop.Services;
-using System.Diagnostics;
-using System.Text;
 
 namespace ZonyLrcTools.Desktop.ViewModels;
 
 public partial class LyricsDownloadViewModel : ViewModelBase
 {
     private readonly ILyricsDownloader _lyricsDownloader;
-    private readonly IDialogService _dialogService;
-    private readonly IFileScanner _fileScanner;
-    private readonly ITagLoader _tagLoader;
+    private readonly IDialogService _dialogs;
+    private readonly IFileScanner _scanner;
+    private readonly ITagLoader _tags;
     private readonly GlobalOptions _options;
-    private readonly IUILocalizationService? _localization;
-
+    private readonly Dictionary<string, MusicFileViewModel> _rows = new();
+    private readonly List<MusicInfo> _infos = new();
     private CancellationTokenSource? _downloadCts;
-    private Dictionary<string, MusicFileViewModel> _musicFileMap = new();
-    private List<MusicInfo> _scannedMusicInfos = new();
+    private long _previewVersion;
+    private string _statusKey = "Work_BatchReady";
+    private object[] _statusArgs = [];
+    private string? _previewMessageKey = "Work_SelectPreview";
 
-    [ObservableProperty]
-    private string? _selectedFolderPath;
-
-    [ObservableProperty]
-    private int _parallelCount = 2;
-
-    [ObservableProperty]
-    private int _totalCount;
-
-    [ObservableProperty]
-    private int _completedCount;
-
-    [ObservableProperty]
-    private int _failedCount;
-
-    [ObservableProperty]
-    private int _skippedCount;
-
-    [ObservableProperty]
-    private string _taskStatus = "选择音乐文件夹，扫描后点击开始下载。歌词保存在歌曲旁边。";
-
-    [ObservableProperty]
-    private MusicFileViewModel? _selectedMusicFile;
-
-    [ObservableProperty]
-    private string _previewText = "选择列表中的歌曲，然后点击“预览歌词”。";
-
-    [ObservableProperty]
-    private double _progressPercentage;
-
+    [ObservableProperty] private string? _selectedFolderPath;
+    [ObservableProperty] private int _parallelCount = 2;
+    [ObservableProperty] private int _totalCount;
+    [ObservableProperty] private int _completedCount;
+    [ObservableProperty] private int _failedCount;
+    [ObservableProperty] private int _skippedCount;
+    [ObservableProperty] private double _progressPercentage;
+    [ObservableProperty] private MusicFileViewModel? _selectedMusicFile;
+    [ObservableProperty] private string _previewText = "";
+    [ObservableProperty] private bool _isPreviewOpen;
+    [ObservableProperty] private bool _showPathColumn;
+    [ObservableProperty] private bool _isStopping;
+    [ObservableProperty] private bool _isRetryRun;
+    [ObservableProperty] private int _scanProgressCount;
+    [ObservableProperty] private int _scanTotalCount;
+    [ObservableProperty] private int _unrecognizedCount;
+    [ObservableProperty] private bool _hasScanned;
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(StartDownloadCommand))]
     [NotifyCanExecuteChangedFor(nameof(SelectFolderCommand))]
     [NotifyCanExecuteChangedFor(nameof(RetryFailedCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CancelDownloadCommand))]
     [NotifyPropertyChangedFor(nameof(CanStartDownload))]
+    [NotifyPropertyChangedFor(nameof(CanConfigure))]
+    [NotifyPropertyChangedFor(nameof(IsGridReadOnly))]
     private bool _isDownloading;
-
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(StartDownloadCommand))]
     [NotifyCanExecuteChangedFor(nameof(SelectFolderCommand))]
     [NotifyCanExecuteChangedFor(nameof(RetryFailedCommand))]
     [NotifyPropertyChangedFor(nameof(CanStartDownload))]
+    [NotifyPropertyChangedFor(nameof(CanConfigure))]
+    [NotifyPropertyChangedFor(nameof(IsGridReadOnly))]
     private bool _isScanning;
 
-    [ObservableProperty]
-    private int _scanProgressCount;
-
-    [ObservableProperty]
-    private int _scanTotalCount;
-
-    [ObservableProperty]
-    private double _scanProgressPercentage;
-
-    [ObservableProperty]
-    private string? _currentProcessingFile;
-
-    // Localized strings
-    public virtual string LyricsTitle => _localization?["Lyrics_Title"] ?? "Lyrics Download";
-    public virtual string LyricsDescription => _localization?["Lyrics_Description"] ?? "Batch download lyrics for your music files";
     public virtual bool IsLyrics => true;
-    public string LyricsFolderLabel => _localization?["Lyrics_FolderLabel"] ?? "Music Folder";
-    public string LyricsSelectFolder => _localization?["Lyrics_SelectFolder"] ?? "Select a folder containing music files...";
-    public string LyricsBrowse => _localization?["Lyrics_Browse"] ?? "Browse...";
-    public string LyricsParallel => _localization?["Lyrics_Parallel"] ?? "Parallel:";
-    public string LyricsStartDownload => _localization?["Lyrics_StartDownload"] ?? "Start Download";
-    public string LyricsStopDownload => _localization?["Lyrics_StopDownload"] ?? "Stop Download";
-    public string LyricsScanning => _localization?["Lyrics_Status_Scanning"] ?? "Scanning files...";
-    public string CommonTotal => _localization?["Common_Total"] ?? "Total:";
-    public string CommonFiles => _localization?["Common_Files"] ?? "files";
-    public string CommonSuccess => _localization?["Common_Success"] ?? "Success:";
-    public string CommonFailed => _localization?["Common_Failed"] ?? "Failed:";
-    public string ColumnSongName => _localization?["Column_SongName"] ?? "Song Name";
-    public string ColumnArtist => _localization?["Column_Artist"] ?? "Artist";
-    public string ColumnFilePath => _localization?["Column_FilePath"] ?? "File Path";
-    public string ColumnStatus => _localization?["Column_Status"] ?? "Status";
-
-    public bool CanStartDownload => !IsDownloading && !IsScanning && MusicFiles.Count > 0;
-
+    public virtual string LyricsTitle => Text[IsLyrics ? "Work_BatchTitle" : "Work_AlbumTitle"];
+    public virtual string LyricsDescription => Text[IsLyrics ? "Work_BatchDescription" : "Work_AlbumDescription"];
+    public string TaskStatus => Text.Format(_statusKey, _statusArgs);
+    public bool CanConfigure => !IsDownloading && !IsScanning;
+    public bool IsGridReadOnly => !CanConfigure;
+    public bool CanStartDownload => CanConfigure && MusicFiles.Count > 0;
     public bool HasNoFiles => MusicFiles.Count == 0;
-
-    public string EmptyStateText => _localization?["Lyrics_EmptyState"] ?? "No tasks yet, please select a folder to start scanning";
-
+    public bool HasFailures => MusicFiles.Any(f => f.IsFailure);
+    public int ProcessedCount => CompletedCount + SkippedCount + FailedCount;
+    public int UnfinishedCount => Math.Max(0, TotalCount - ProcessedCount);
+    public string CountsText => Text.Format(IsRetryRun ? "Work_RetryCounts" : "Work_Counts",
+        ProcessedCount, TotalCount, CompletedCount, SkippedCount, FailedCount, UnfinishedCount);
+    public string EmptyStateText => Text[IsScanning ? "Work_Scanning" : HasScanned ? "Work_NoRecognized" : "Work_EmptyBatch"];
+    public string ScanSummary => Text.Format("Work_ScanSummary", ScanProgressCount, MusicFiles.Count, UnrecognizedCount);
+    public string OutputPolicy => Text[!IsLyrics || _options.Provider.Lyric.Config.IsSkipExistLyricFiles ? "Work_OutputSkip" : "Work_OutputReplace"];
+    public string StopText => Text[IsStopping ? "Work_Stopping" : "Work_Stop"];
     public ObservableCollection<MusicFileViewModel> MusicFiles { get; } = new();
 
-    public LyricsDownloadViewModel(
-        ILyricsDownloader lyricsDownloader,
-        IDialogService dialogService,
-        IFileScanner fileScanner,
-        ITagLoader tagLoader,
-        IOptions<GlobalOptions> options,
+    public LyricsDownloadViewModel(ILyricsDownloader lyricsDownloader, IDialogService dialogService,
+        IFileScanner fileScanner, ITagLoader tagLoader, IOptions<GlobalOptions> options,
         IUILocalizationService? localization = null)
     {
         _lyricsDownloader = lyricsDownloader;
-        _dialogService = dialogService;
-        _fileScanner = fileScanner;
-        _tagLoader = tagLoader;
+        _dialogs = dialogService;
+        _scanner = fileScanner;
+        _tags = tagLoader;
         _options = options.Value;
-        _localization = localization;
-
-        if (_localization != null)
-        {
-            _localization.LanguageChanged += OnLanguageChanged;
-        }
-
+        PreviewText = Text["Work_SelectPreview"];
+        if (localization != null) localization.LanguageChanged += (_, _) => RefreshLanguage();
         MusicFiles.CollectionChanged += (_, _) =>
         {
             OnPropertyChanged(nameof(HasNoFiles));
             OnPropertyChanged(nameof(CanStartDownload));
+            OnPropertyChanged(nameof(ScanSummary));
             StartDownloadCommand.NotifyCanExecuteChanged();
-            RetryFailedCommand.NotifyCanExecuteChanged();
+        };
+        PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(CompletedCount) or nameof(FailedCount) or nameof(SkippedCount) or nameof(TotalCount) or nameof(IsRetryRun))
+            {
+                OnPropertyChanged(nameof(CountsText));
+                OnPropertyChanged(nameof(ProcessedCount));
+                OnPropertyChanged(nameof(UnfinishedCount));
+            }
         };
     }
 
-    private void OnLanguageChanged(object? sender, EventArgs e)
+    private void RefreshLanguage()
     {
-        OnPropertyChanged(nameof(LyricsTitle));
-        OnPropertyChanged(nameof(LyricsDescription));
-        OnPropertyChanged(nameof(LyricsFolderLabel));
-        OnPropertyChanged(nameof(LyricsSelectFolder));
-        OnPropertyChanged(nameof(LyricsBrowse));
-        OnPropertyChanged(nameof(LyricsParallel));
-        OnPropertyChanged(nameof(LyricsStartDownload));
-        OnPropertyChanged(nameof(LyricsStopDownload));
-        OnPropertyChanged(nameof(LyricsScanning));
-        OnPropertyChanged(nameof(CommonTotal));
-        OnPropertyChanged(nameof(CommonFiles));
-        OnPropertyChanged(nameof(CommonSuccess));
-        OnPropertyChanged(nameof(CommonFailed));
-        OnPropertyChanged(nameof(ColumnSongName));
-        OnPropertyChanged(nameof(ColumnArtist));
-        OnPropertyChanged(nameof(ColumnFilePath));
-        OnPropertyChanged(nameof(ColumnStatus));
-        OnPropertyChanged(nameof(EmptyStateText));
+        foreach (var name in new[] { nameof(LyricsTitle), nameof(LyricsDescription), nameof(TaskStatus), nameof(CountsText),
+            nameof(EmptyStateText), nameof(ScanSummary), nameof(OutputPolicy), nameof(StopText) }) OnPropertyChanged(name);
+        foreach (var row in MusicFiles) row.RefreshStatus(Text);
+        if (_previewMessageKey != null) PreviewText = Text[_previewMessageKey];
     }
+    private void SetStatus(string key, params object[] arguments)
+    {
+        _statusKey = key;
+        _statusArgs = arguments;
+        OnPropertyChanged(nameof(TaskStatus));
+    }
+    partial void OnIsStoppingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(StopText));
+        CancelDownloadCommand.NotifyCanExecuteChanged();
+    }
+    partial void OnSelectedMusicFileChanged(MusicFileViewModel? value)
+    {
+        IsPreviewOpen = value != null && IsLyrics;
+        if (IsLyrics) _ = LoadPreviewAsync(value);
+    }
+    partial void OnParallelCountChanged(int value)
+    {
+        if (value is < 1 or > 32) ParallelCount = Math.Clamp(value, 1, 32);
+    }
+    partial void OnHasScannedChanged(bool value) => OnPropertyChanged(nameof(EmptyStateText));
+    partial void OnScanProgressCountChanged(int value) => OnPropertyChanged(nameof(ScanSummary));
+    partial void OnUnrecognizedCountChanged(int value) => OnPropertyChanged(nameof(ScanSummary));
 
-    [RelayCommand(CanExecute = nameof(CanSelectFolder))]
+    [RelayCommand(CanExecute = nameof(CanConfigure))]
     private async Task SelectFolderAsync()
     {
-        var folder = await _dialogService.ShowFolderPickerAsync(
-            _localization?["Lyrics_SelectFolder"] ?? "Select Music Folder");
-        if (string.IsNullOrEmpty(folder)) return;
-
-        SelectedFolderPath = folder;
-        await ScanFilesAsync();
+        var folder = await _dialogs.ShowFolderPickerAsync(Text["Work_SelectFolder"]);
+        if (folder != null) await ScanFolderAsync(folder);
     }
-
-    private bool CanSelectFolder => !IsScanning && !IsDownloading;
-
     public async Task ScanFolderAsync(string folder)
     {
-        if (IsScanning || IsDownloading) return;
+        if (!CanConfigure) return;
         SelectedFolderPath = folder;
-        await ScanFilesAsync();
-    }
-
-    private async Task ScanFilesAsync()
-    {
-        if (string.IsNullOrEmpty(SelectedFolderPath)) return;
-
         IsScanning = true;
+        HasScanned = false;
         MusicFiles.Clear();
-        _musicFileMap.Clear();
-        _scannedMusicInfos.Clear();
-        ScanProgressCount = 0;
-        ScanTotalCount = 0;
-        ScanProgressPercentage = 0;
-        TotalCount = 0;
-        CompletedCount = 0;
-        FailedCount = 0;
-        SkippedCount = 0;
+        _rows.Clear();
+        _infos.Clear();
+        SelectedMusicFile = null;
+        TotalCount = CompletedCount = FailedCount = SkippedCount = ScanProgressCount = ScanTotalCount = UnrecognizedCount = 0;
         ProgressPercentage = 0;
-        TaskStatus = "正在扫描音乐文件…";
-
+        IsRetryRun = false;
+        SetStatus("Work_Scanning");
+        OnPropertyChanged(nameof(EmptyStateText));
         try
         {
-            var files = (await Task.Run(() => _fileScanner.ScanMusicFilesAsync(SelectedFolderPath, _options.SupportFileExtensions)))
-                .ToList();
-
-            if (files.Count == 0)
-            {
-                await _dialogService.ShowMessageAsync(
-                    _localization?["Common_Info"] ?? "Info",
-                    _localization?["Error_NoMusicFiles"] ?? "No music files found in the selected folder.");
-                IsScanning = false;
-                OnPropertyChanged(nameof(CanStartDownload));
-                return;
-            }
-
+            var files = (await Task.Run(() => _scanner.ScanMusicFilesAsync(folder, _options.SupportFileExtensions))).ToList();
             ScanTotalCount = files.Count;
-
-            using var warpTask = new WarpTask(ParallelCount);
-            var scanTasks = files.Select(file =>
-                warpTask.RunAsync(async () =>
+            using var tasks = new WarpTask(ParallelCount);
+            await Task.WhenAll(files.Select(file => tasks.RunAsync(async () =>
+            {
+                MusicInfo? info = null;
+                try { info = await Task.Run(async () => await _tags.LoadTagAsync(file)); }
+                catch (Exception) { /* An unreadable tag does not abort the scan. */ }
+                await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    MusicInfo? musicInfo = null;
-                    try { musicInfo = await Task.Run(async () => await _tagLoader.LoadTagAsync(file)); }
-                    catch (Exception) { /* Other files can still be scanned. */ }
-
-                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    if (info != null && (!string.IsNullOrWhiteSpace(info.Name) || !string.IsNullOrWhiteSpace(info.Artist)))
                     {
-                        if (musicInfo != null &&
-                            (!string.IsNullOrEmpty(musicInfo.Name) || !string.IsNullOrEmpty(musicInfo.Artist)))
-                        {
-                            var vm = new MusicFileViewModel
-                            {
-                                FilePath = musicInfo.FilePath,
-                                Name = musicInfo.Name,
-                                Artist = musicInfo.Artist,
-                                StatusMessage = _localization?["Status_Pending"] ?? "Pending"
-                            };
-                            MusicFiles.Add(vm);
-                            _musicFileMap[musicInfo.FilePath] = vm;
-                            _scannedMusicInfos.Add(musicInfo);
-                        }
-
-                        ScanProgressCount++;
-                        ScanProgressPercentage = ScanProgressCount * 100.0 / ScanTotalCount;
-                    });
-                }));
-
-            await Task.WhenAll(scanTasks);
-
+                        var row = new MusicFileViewModel { FilePath = info.FilePath, Name = info.Name, Artist = info.Artist };
+                        row.RefreshStatus(Text);
+                        MusicFiles.Add(row);
+                        _rows[info.FilePath] = row;
+                        _infos.Add(info);
+                    }
+                    else UnrecognizedCount++;
+                    ScanProgressCount++;
+                });
+            })));
             TotalCount = MusicFiles.Count;
-            TaskStatus = $"已扫描 {files.Count} 个文件，可下载 {TotalCount} 首。可直接修改列表中的歌名和歌手。";
+            HasScanned = true;
+            SetStatus(MusicFiles.Count == 0 ? "Work_ScanEmpty" : "Work_ScanReady", ScanProgressCount, TotalCount, UnrecognizedCount);
         }
-        catch (Exception ex)
-        {
-            await _dialogService.ShowMessageAsync(
-                _localization?["Common_Error"] ?? "Error",
-                ex.Message);
-        }
+        catch (Exception ex) { SetStatus("Work_ScanError", ex.Message); }
         finally
         {
             IsScanning = false;
-            OnPropertyChanged(nameof(CanStartDownload));
-            StartDownloadCommand.NotifyCanExecuteChanged();
+            OnPropertyChanged(nameof(EmptyStateText));
+            OnPropertyChanged(nameof(OutputPolicy));
             RetryFailedCommand.NotifyCanExecuteChanged();
         }
     }
-
     [RelayCommand(CanExecute = nameof(CanStartDownload))]
-    private async Task StartDownloadAsync()
-    {
-        await RunDownloadAsync(_scannedMusicInfos);
-    }
-
-    private bool CanRetryFailed => CanStartDownload && MusicFiles.Any(f => f.IsProcessed && !f.IsSuccessful);
-
+    private Task StartDownloadAsync() => RunDownloadAsync(_infos.ToList(), false);
+    private bool CanRetryFailed => CanStartDownload && HasFailures;
     [RelayCommand(CanExecute = nameof(CanRetryFailed))]
-    private async Task RetryFailedAsync()
+    private Task RetryFailedAsync() => RunDownloadAsync(_infos.Where(i => _rows[i.FilePath].IsFailure).ToList(), true);
+    protected virtual Task DownloadCoreAsync(List<MusicInfo> infos, int parallelCount, Func<MusicInfo, Task> callback,
+        CancellationToken cancellationToken) => _lyricsDownloader.DownloadAsync(infos, parallelCount, callback, cancellationToken);
+    private async Task RunDownloadAsync(List<MusicInfo> infos, bool retry)
     {
-        await RunDownloadAsync(_scannedMusicInfos.Where(i =>
-            _musicFileMap[i.FilePath] is { IsProcessed: true, IsSuccessful: false }).ToList());
-    }
-
-    protected virtual Task DownloadCoreAsync(List<MusicInfo> infos, int parallelCount,
-        Func<MusicInfo, Task> callback, CancellationToken cancellationToken) =>
-        _lyricsDownloader.DownloadAsync(infos, parallelCount, callback, cancellationToken);
-
-    private async Task RunDownloadAsync(List<MusicInfo> infos)
-    {
-        if (infos.Count == 0 || IsScanning || IsDownloading) return;
-        if (!_options.Provider.Lyric.Plugin.Any(p => p.Priority >= 0) && IsLyrics)
+        if (infos.Count == 0 || !CanConfigure) return;
+        if (IsLyrics && !_options.Provider.Lyric.Plugin.Any(p => p.Priority >= 0))
         {
-            await _dialogService.ShowMessageAsync("无法下载", "请先在设置中启用至少一个歌词源。");
+            SetStatus("Work_EnableSource");
             return;
         }
-
         IsDownloading = true;
-        CompletedCount = 0;
-        FailedCount = 0;
-        SkippedCount = 0;
+        IsStopping = false;
+        IsRetryRun = retry;
+        CompletedCount = FailedCount = SkippedCount = 0;
         ProgressPercentage = 0;
         TotalCount = infos.Count;
-        TaskStatus = "正在下载…";
-
-        // Reset all row statuses
+        SetStatus(IsLyrics ? "Work_DownloadingLyrics" : "Work_DownloadingCovers");
         foreach (var info in infos)
         {
-            var vm = _musicFileMap[info.FilePath];
-            info.Name = vm.Name.Trim();
-            info.Artist = vm.Artist.Trim();
-            vm.IsProcessed = false;
-            vm.IsSuccessful = false;
-            vm.StatusMessage = _localization?["Status_Pending"] ?? "Pending";
+            var row = _rows[info.FilePath];
+            info.Name = row.Name.Trim();
+            info.Artist = row.Artist.Trim();
+            row.IsProcessed = row.IsSuccessful = row.IsSkipped = false;
+            row.RefreshStatus(Text);
         }
-
-        _downloadCts = new CancellationTokenSource();
-
+        NotifyFailures();
+        _downloadCts = new();
         try
         {
-            await DownloadCoreAsync(
-                infos,
-                ParallelCount,
-                async musicInfo =>
+            await DownloadCoreAsync(infos, ParallelCount, async info =>
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    if (_rows.TryGetValue(info.FilePath, out var row))
                     {
-                        if (_musicFileMap.TryGetValue(musicInfo.FilePath, out var vm))
-                        {
-                            vm.IsProcessed = true;
-                            vm.IsSuccessful = musicInfo.IsSuccessful;
-
-                            if (musicInfo.IsPruneMusic || musicInfo.IsSkipped)
-                            {
-                                vm.StatusMessage = _localization?["Status_Skipped"] ?? "Skipped";
-                            }
-                            else if (musicInfo.IsSuccessful)
-                            {
-                                vm.StatusMessage = _localization?["Status_Success"] ?? "Success";
-                            }
-                            else
-                            {
-                                vm.StatusMessage = _localization?["Status_Failed"] ?? "Failed";
-                            }
-                        }
-
-                        if (musicInfo.IsPruneMusic || musicInfo.IsSkipped)
-                            SkippedCount++;
-                        else if (musicInfo.IsSuccessful)
-                            CompletedCount++;
-                        else
-                            FailedCount++;
-
-                        ProgressPercentage = (CompletedCount + FailedCount + SkippedCount) * 100.0 / TotalCount;
-                    });
-                },
-                _downloadCts.Token);
-            TaskStatus = $"下载完成：成功 {CompletedCount}，跳过 {SkippedCount}，失败 {FailedCount}。";
+                        row.IsProcessed = true;
+                        row.IsSuccessful = info.IsSuccessful;
+                        row.IsSkipped = info.IsPruneMusic || info.IsSkipped;
+                        row.RefreshStatus(Text);
+                        if (ReferenceEquals(row, SelectedMusicFile) && IsLyrics) _ = LoadPreviewAsync(row);
+                    }
+                    if (info.IsPruneMusic || info.IsSkipped) SkippedCount++;
+                    else if (info.IsSuccessful) CompletedCount++;
+                    else FailedCount++;
+                    ProgressPercentage = ProcessedCount * 100.0 / TotalCount;
+                    NotifyFailures();
+                });
+            }, _downloadCts.Token);
+            SetStatus("Work_Completed");
         }
-        catch (OperationCanceledException)
-        {
-            TaskStatus = "已停止。尚未完成的歌曲可再次开始下载。";
-        }
-        catch (Exception ex)
-        {
-            TaskStatus = $"下载出错：{ex.Message}";
-            await _dialogService.ShowMessageAsync("下载失败", ex.Message);
-        }
+        catch (OperationCanceledException) { SetStatus("Work_Stopped"); }
+        catch (Exception ex) { SetStatus("Work_DownloadError", ex.Message); }
         finally
         {
             IsDownloading = false;
-            _downloadCts?.Dispose();
+            IsStopping = false;
+            _downloadCts.Dispose();
             _downloadCts = null;
-            RetryFailedCommand.NotifyCanExecuteChanged();
+            NotifyFailures();
         }
     }
-
-    [RelayCommand]
-    private async Task PreviewLyricsAsync()
+    private void NotifyFailures()
     {
-        if (SelectedMusicFile == null) { PreviewText = "请先在列表中选择一首歌曲。"; return; }
-        var path = Path.ChangeExtension(SelectedMusicFile.FilePath, ".lrc");
-        try
-        {
-            if (!File.Exists(path)) { PreviewText = "这首歌曲还没有 .lrc 文件，请先下载。"; return; }
-            var encoding = _options.Provider.Lyric.Config.FileEncoding;
-            using var reader = new StreamReader(path, Encoding.GetEncoding(encoding == "utf-8-bom" ? "utf-8" : encoding), true);
-            PreviewText = await reader.ReadToEndAsync();
-        }
-        catch (Exception ex) { PreviewText = $"无法读取歌词：{ex.Message}"; }
+        OnPropertyChanged(nameof(HasFailures));
+        RetryFailedCommand.NotifyCanExecuteChanged();
     }
-
-    [RelayCommand]
-    private void OpenFolder()
+    private async Task LoadPreviewAsync(MusicFileViewModel? selected)
+    {
+        var version = ++_previewVersion;
+        var message = "Work_NoLocalLyrics";
+        string? result = null;
+        if (selected == null) message = "Work_SelectPreview";
+        else
+        {
+            try
+            {
+                var path = Path.ChangeExtension(selected.FilePath, ".lrc");
+                if (File.Exists(path))
+                {
+                    _previewMessageKey = "Work_LoadingPreview";
+                    PreviewText = Text[_previewMessageKey];
+                    var encoding = _options.Provider.Lyric.Config.FileEncoding;
+                    using var reader = new StreamReader(path, Encoding.GetEncoding(encoding == "utf-8-bom" ? "utf-8" : encoding), true);
+                    result = await reader.ReadToEndAsync();
+                }
+            }
+            catch (Exception ex) { result = Text.Format("Work_PreviewError", ex.Message); }
+        }
+        if (version != _previewVersion || !ReferenceEquals(selected, SelectedMusicFile)) return;
+        _previewMessageKey = result == null ? message : null;
+        PreviewText = result ?? Text[message];
+    }
+    [RelayCommand] private void ClosePreview() => IsPreviewOpen = false;
+    [RelayCommand] private void ShowPreview() { if (IsLyrics) IsPreviewOpen = true; }
+    [RelayCommand] private void OpenFolder()
     {
         if (Directory.Exists(SelectedFolderPath))
-            Process.Start(new ProcessStartInfo("explorer.exe", SelectedFolderPath!) { UseShellExecute = true });
+            Process.Start(new ProcessStartInfo("explorer.exe") { UseShellExecute = true, ArgumentList = { SelectedFolderPath! } });
     }
-
-    [RelayCommand]
-    private async Task ExportFailedAsync()
+    [RelayCommand] private async Task CopyPathAsync()
     {
-        var failed = MusicFiles.Where(f => f.IsProcessed && !f.IsSuccessful).ToList();
-        if (failed.Count == 0) { await _dialogService.ShowMessageAsync("失败列表", "当前没有下载失败的歌曲。"); return; }
-        var folder = await _dialogService.ShowFolderPickerAsync("选择失败列表保存目录");
+        if (Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime lifetime
+            && lifetime.MainWindow?.Clipboard is { } clipboard)
+            await clipboard.SetTextAsync(SelectedFolderPath ?? "");
+    }
+    [RelayCommand] private async Task ExportFailedAsync()
+    {
+        var failed = MusicFiles.Where(f => f.IsFailure).ToList();
+        if (failed.Count == 0) return;
+        var folder = await _dialogs.ShowFolderPickerAsync(Text["Work_ExportFolder"]);
         if (folder == null) return;
         static string Csv(string value) => "\"" + value.Replace("\"", "\"\"") + "\"";
         try
         {
-            var path = Path.Combine(folder, $"歌词下载失败_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
-            await File.WriteAllLinesAsync(path, new[] { "Song,Artist,FilePath" }
-                .Concat(failed.Select(f => $"{Csv(f.Name)},{Csv(f.Artist)},{Csv(f.FilePath)}")), new UTF8Encoding(true));
-            TaskStatus = $"失败列表已保存：{path}";
+            var path = Path.Combine(folder, $"{(IsLyrics ? "lyrics" : "covers")}_failed_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+            await File.WriteAllLinesAsync(path, new[] { "Song,Artist,FilePath" }.Concat(failed.Select(f =>
+                $"{Csv(f.Name)},{Csv(f.Artist)},{Csv(f.FilePath)}")), new UTF8Encoding(true));
+            SetStatus("Work_Exported", path);
         }
-        catch (Exception ex) { await _dialogService.ShowMessageAsync("导出失败", ex.Message); }
+        catch (Exception ex) { SetStatus("Work_ExportError", ex.Message); }
     }
-
-    [RelayCommand]
-    private void CancelDownload()
+    private bool CanCancelDownload => IsDownloading && !IsStopping;
+    [RelayCommand(CanExecute = nameof(CanCancelDownload))] private void CancelDownload()
     {
-        _downloadCts?.Cancel();
+        if (_downloadCts == null) return;
+        IsStopping = true;
+        SetStatus("Work_Stopping");
+        _downloadCts.Cancel();
     }
 }
 
 public partial class MusicFileViewModel : ObservableObject
 {
-    [ObservableProperty]
-    private string _filePath = string.Empty;
-
-    [ObservableProperty]
-    private string _name = string.Empty;
-
-    [ObservableProperty]
-    private string _artist = string.Empty;
-
-    [ObservableProperty]
-    private bool _isProcessed;
-
-    [ObservableProperty]
-    private bool _isSuccessful;
-
-    [ObservableProperty]
-    private string? _statusMessage;
+    [ObservableProperty] private string _filePath = "";
+    [ObservableProperty] private string _name = "";
+    [ObservableProperty] private string _artist = "";
+    [ObservableProperty] private bool _isProcessed;
+    [ObservableProperty] private bool _isSuccessful;
+    [ObservableProperty] private bool _isSkipped;
+    [ObservableProperty] private string? _statusMessage;
+    public bool IsFailure => IsProcessed && !IsSuccessful && !IsSkipped;
+    public void RefreshStatus(LocalizedText text) => StatusMessage =
+        (!IsProcessed ? "○ " : IsSkipped ? "− " : IsSuccessful ? "✓ " : "! ") +
+        text[!IsProcessed ? "Status_Pending" : IsSkipped ? "Status_Skipped" : IsSuccessful ? "Status_Success" : "Status_Failed"];
 }

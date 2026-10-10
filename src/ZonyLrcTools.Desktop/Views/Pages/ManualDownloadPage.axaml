@@ -1,30 +1,37 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels"
-             x:Class="ZonyLrcTools.Desktop.Views.Pages.ManualDownloadPage"
-             x:DataType="vm:ManualDownloadViewModel">
-    <Grid RowDefinitions="Auto,Auto,*,Auto">
-        <StackPanel Margin="0,0,0,20" Spacing="6">
-            <TextBlock Text="单曲歌词" FontSize="24" FontWeight="Bold" />
-            <TextBlock Text="没有本地音乐文件也可以下载。先匹配和预览，再保存为 .lrc 文件。" Opacity="0.6" />
-        </StackPanel>
-        <Border Grid.Row="1" Background="{DynamicResource CardBackgroundBrush}" CornerRadius="8" Padding="24" Margin="0,0,0,16">
-            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,*,Auto">
-                <TextBox Text="{Binding SongName}" Watermark="歌名，例如：七里香" IsEnabled="{Binding !IsBusy}" Margin="0,0,12,14" />
-                <TextBox Grid.Column="1" Text="{Binding Artist}" Watermark="歌手，例如：周杰伦" IsEnabled="{Binding !IsBusy}" Margin="0,0,12,14" />
-                <Button Grid.Column="2" Content="匹配并预览" Command="{Binding MatchCommand}" Classes="accent" IsVisible="{Binding !IsBusy}" />
-                <Button Grid.Column="2" Content="停止匹配" Command="{Binding CancelCommand}" IsVisible="{Binding IsBusy}" />
-                <TextBox Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding OutputFolder}" Watermark="歌词保存目录" Margin="0,0,12,0" />
-                <Button Grid.Row="1" Grid.Column="2" Content="选择保存目录" Command="{Binding BrowseCommand}" />
-            </Grid>
-        </Border>
-        <TextBox Grid.Row="2" Text="{Binding Preview}" IsReadOnly="True" AcceptsReturn="True"
-                 TextWrapping="Wrap" FontFamily="Cascadia Mono,Microsoft YaHei UI"
-                 Watermark="匹配成功后，歌词显示在这里。"
-                 ScrollViewer.VerticalScrollBarVisibility="Auto" />
-        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" Margin="0,16,0,0">
-            <TextBlock Text="{Binding Status}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,16,0" />
-            <Button Grid.Column="1" Content="保存 .lrc 文件" Command="{Binding SaveCommand}" Classes="accent" />
-        </Grid>
-    </Grid>
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels" xmlns:lyrics="using:ZonyLrcTools.Common.Lyrics" xmlns:loc="using:ZonyLrcTools.Desktop.Infrastructure.Localization" x:Class="ZonyLrcTools.Desktop.Views.Pages.ManualDownloadPage" x:DataType="vm:ManualDownloadViewModel">
+ <Grid RowDefinitions="Auto,Auto,*,Auto">
+  <StackPanel Spacing="4" Margin="0,0,0,16"><TextBlock Text="{Binding Text[Work_ManualTitle]}" Classes="title"/><TextBlock Text="{Binding Text[Work_ManualDescription]}" Classes="secondary"/></StackPanel>
+  <Border Grid.Row="1" Classes="card" Margin="0,0,0,12">
+   <Grid ColumnDefinitions="*,*,Auto">
+    <StackPanel Spacing="6" Margin="0,0,12,0"><TextBlock Text="{Binding Text[Work_Song]}"/><TextBox Text="{Binding SongName}" Watermark="{Binding Text[Work_SongHint]}" IsEnabled="{Binding !IsBusy}"/></StackPanel>
+    <StackPanel Grid.Column="1" Spacing="6" Margin="0,0,12,0"><TextBlock Text="{Binding Text[Work_Artist]}"/><TextBox Text="{Binding Artist}" Watermark="{Binding Text[Work_ArtistHint]}" IsEnabled="{Binding !IsBusy}"/></StackPanel>
+    <Button Grid.Column="2" Content="{Binding Text[Work_Match]}" Command="{Binding MatchCommand}" Classes="accent" IsVisible="{Binding !IsBusy}" VerticalAlignment="Bottom"/>
+    <Button Grid.Column="2" Content="{Binding StopText}" Command="{Binding CancelCommand}" IsVisible="{Binding IsBusy}" VerticalAlignment="Bottom"/>
+   </Grid>
+  </Border>
+  <Border Grid.Row="2" Classes="card">
+   <Grid RowDefinitions="Auto,Auto,Auto,*">
+    <Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding ResultSummary}" IsVisible="{Binding HasLyrics}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,12,0" VerticalAlignment="Center"/><CheckBox Grid.Column="1" Content="{Binding Text[Work_Raw]}" IsChecked="{Binding ShowRawLrc}"/></Grid>
+    <TextBlock Grid.Row="1" Text="{Binding Text[Work_QueryNote]}" IsVisible="{Binding HasLyrics}" Classes="secondary" Margin="0,4,0,8"/>
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,0,0,12"><TextBlock Text="{Binding Status}" TextWrapping="Wrap" Foreground="{DynamicResource SecondaryBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/><Button Grid.Column="1" x:Name="SourceSettingsButton" Content="{Binding Text[Work_Sources]}" Command="{Binding OpenSettingsCommand}" IsVisible="{Binding HasNoResult}"/></Grid>
+    <Panel Grid.Row="3">
+     <DataGrid ItemsSource="{Binding PreviewLines}" IsVisible="{Binding !ShowRawLrc}" AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="None" BorderThickness="0"><DataGrid.Columns>
+      <DataGridTextColumn x:DataType="lyrics:LyricsItem" Header="{loc:Localize Work_Timestamp}" Binding="{Binding OriginalTimeline}" Width="110"/>
+      <DataGridTextColumn x:DataType="lyrics:LyricsItem" Header="{loc:Localize Work_LyricsText}" Binding="{Binding LyricText}" Width="*"/>
+     </DataGrid.Columns></DataGrid>
+     <TextBox Text="{Binding Preview}" IsVisible="{Binding ShowRawLrc}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+     <TextBlock Text="{Binding Text[Work_ManualEmpty]}" IsVisible="{Binding HasNoResult}" Classes="secondary" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Panel>
+   </Grid>
+  </Border>
+  <Border Grid.Row="3" Classes="card" Margin="0,12,0,0" Padding="12">
+   <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto,Auto">
+    <TextBlock Text="{Binding Text[Work_SaveLocation]}" Margin="0,0,0,6"/>
+    <TextBox Grid.Row="1" Text="{Binding OutputFolder}" Margin="0,0,8,0" ToolTip.Tip="{Binding SavePath}"/>
+    <Button Grid.Row="1" Grid.Column="1" Content="{Binding Text[Work_Browse]}" Command="{Binding BrowseCommand}" Margin="0,0,8,0"/>
+    <Button Grid.Row="1" Grid.Column="2" Content="{Binding Text[Work_Save]}" Command="{Binding SaveCommand}" Classes="accent"/>
+    <TextBlock Grid.Row="2" Grid.ColumnSpan="3" Classes="secondary" Margin="0,6,0,0"><Run Text="{Binding Text[Work_FileName]}"/><Run Text=" · "/><Run Text="{Binding SaveFileName}"/></TextBlock>
+   </Grid>
+  </Border>
+ </Grid>
 </UserControl>

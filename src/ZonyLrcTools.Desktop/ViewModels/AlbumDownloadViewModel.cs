@@ -13,8 +13,6 @@ namespace ZonyLrcTools.Desktop.ViewModels;
 public class AlbumDownloadViewModel : LyricsDownloadViewModel
 {
     private readonly IAlbumDownloader _albumDownloader;
-    public override string LyricsTitle => "专辑封面";
-    public override string LyricsDescription => "从网易云音乐匹配封面，保存为歌曲旁的 .png 文件；已有封面自动跳过。";
     public override bool IsLyrics => false;
 
     public AlbumDownloadViewModel(ILyricsDownloader lyricsDownloader, IAlbumDownloader albumDownloader,
@@ -23,7 +21,6 @@ public class AlbumDownloadViewModel : LyricsDownloadViewModel
         : base(lyricsDownloader, dialogs, scanner, tags, options, localization)
     {
         _albumDownloader = albumDownloader;
-        TaskStatus = "选择音乐文件夹，扫描后开始下载专辑封面。";
     }
 
     protected override Task DownloadCoreAsync(List<MusicInfo> infos, int parallelCount,

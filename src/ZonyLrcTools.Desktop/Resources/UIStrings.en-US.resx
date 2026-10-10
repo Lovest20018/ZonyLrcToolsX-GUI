@@ -258,4 +258,132 @@
   <data name="Error_NoMusicFiles" xml:space="preserve">
     <value>No music files found in the selected folder.</value>
   </data>
+  <data name="Work_BatchTitle" xml:space="preserve"><value>Batch lyrics</value></data>
+  <data name="Work_BatchDescription" xml:space="preserve"><value>Match lyrics for local music and save .lrc files beside each song.</value></data>
+  <data name="Work_AlbumTitle" xml:space="preserve"><value>Album covers</value></data>
+  <data name="Work_AlbumDescription" xml:space="preserve"><value>Match NetEase album covers and save .png files beside each song; existing covers are skipped.</value></data>
+  <data name="Work_ManualTitle" xml:space="preserve"><value>Single lyrics</value></data>
+  <data name="Work_ManualDescription" xml:space="preserve"><value>Match, check and save lyrics without a local music file.</value></data>
+  <data name="Work_LogsTitle" xml:space="preserve"><value>Activity log</value></data>
+  <data name="Work_SettingsTitle" xml:space="preserve"><value>Settings</value></data>
+  <data name="Work_Help" xml:space="preserve"><value>Help</value></data>
+  <data name="Work_Tagline" xml:space="preserve"><value>Lyrics downloader</value></data>
+  <data name="Work_SelectFolder" xml:space="preserve"><value>Select music folder</value></data>
+  <data name="Work_Folder" xml:space="preserve"><value>Music folder</value></data>
+  <data name="Work_Browse" xml:space="preserve"><value>Choose folder</value></data>
+  <data name="Work_Parallel" xml:space="preserve"><value>Concurrency</value></data>
+  <data name="Work_ParallelHint" xml:space="preserve"><value>Recommended: 1–2</value></data>
+  <data name="Work_Start" xml:space="preserve"><value>Start download</value></data>
+  <data name="Work_Stop" xml:space="preserve"><value>Stop download</value></data>
+  <data name="Work_Stopping" xml:space="preserve"><value>Stopping…</value></data>
+  <data name="Work_OpenFolder" xml:space="preserve"><value>Open folder</value></data>
+  <data name="Work_CopyPath" xml:space="preserve"><value>Copy path</value></data>
+  <data name="Work_ShowPath" xml:space="preserve"><value>Show path column</value></data>
+  <data name="Work_EditHint" xml:space="preserve"><value>Use F2 or double-click to edit song and artist while idle. Selection reads local lyrics only.</value></data>
+  <data name="Work_AlbumEditHint" xml:space="preserve"><value>Use F2 or double-click to edit song and artist while idle.</value></data>
+  <data name="Work_Preview" xml:space="preserve"><value>Local lyrics</value></data>
+  <data name="Work_Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Work_Details" xml:space="preserve"><value>View lyrics</value></data>
+  <data name="Work_SelectPreview" xml:space="preserve"><value>Select a song to view local lyrics.</value></data>
+  <data name="Work_NoLocalLyrics" xml:space="preserve"><value>No local lyrics yet. Download to preview.</value></data>
+  <data name="Work_PreviewError" xml:space="preserve"><value>Cannot read lyrics: {0}</value></data>
+  <data name="Work_Retry" xml:space="preserve"><value>Retry failed</value></data>
+  <data name="Work_More" xml:space="preserve"><value>More</value></data>
+  <data name="Work_ExportFailed" xml:space="preserve"><value>Export failed lyrics</value></data>
+  <data name="Work_ExportCovers" xml:space="preserve"><value>Export failed covers</value></data>
+  <data name="Work_ExportFolder" xml:space="preserve"><value>Choose a folder for the failure list</value></data>
+  <data name="Work_Exported" xml:space="preserve"><value>Failure list saved: {0}</value></data>
+  <data name="Work_ExportError" xml:space="preserve"><value>Export failed: {0}</value></data>
+  <data name="Work_Counts" xml:space="preserve"><value>Processed {0} / {1} · Success {2} · Skipped {3} · Failed {4} · Unfinished {5}</value></data>
+  <data name="Work_RetryCounts" xml:space="preserve"><value>This retry {0} / {1} · Success {2} · Skipped {3} · Failed {4} · Unfinished {5}</value></data>
+  <data name="Work_BatchReady" xml:space="preserve"><value>Choose a music folder, then start downloading after the scan.</value></data>
+  <data name="Work_Scanning" xml:space="preserve"><value>Scanning music files…</value></data>
+  <data name="Work_ScanSummary" xml:space="preserve"><value>Scanned {0} · Recognized {1} · Unrecognized {2}</value></data>
+  <data name="Work_ScanReady" xml:space="preserve"><value>Scanned {0} files; {1} songs ready; {2} unrecognized.</value></data>
+  <data name="Work_ScanEmpty" xml:space="preserve"><value>Scanned {0} files; {1} recognized; {2} unrecognized. Choose another folder.</value></data>
+  <data name="Work_ScanError" xml:space="preserve"><value>Scan failed: {0}</value></data>
+  <data name="Work_EmptyBatch" xml:space="preserve"><value>Choose a music folder
+Supports MP3, FLAC, M4A and more; example: Artist - Song.mp3</value></data>
+  <data name="Work_NoRecognized" xml:space="preserve"><value>No songs ready to download
+Choose another folder or check tags and file names.</value></data>
+  <data name="Work_OutputSkip" xml:space="preserve"><value>Save beside songs · Skip existing files</value></data>
+  <data name="Work_OutputReplace" xml:space="preserve"><value>Save beside songs · Replace existing files</value></data>
+  <data name="Work_DownloadingLyrics" xml:space="preserve"><value>Downloading lyrics…</value></data>
+  <data name="Work_DownloadingCovers" xml:space="preserve"><value>Downloading covers…</value></data>
+  <data name="Work_Completed" xml:space="preserve"><value>This run is complete. Failed songs can be retried.</value></data>
+  <data name="Work_Stopped" xml:space="preserve"><value>Stopped. Start again to process unfinished songs.</value></data>
+  <data name="Work_DownloadError" xml:space="preserve"><value>Download error: {0}</value></data>
+  <data name="Work_EnableSource" xml:space="preserve"><value>Enable at least one lyrics source in Settings.</value></data>
+  <data name="Work_Song" xml:space="preserve"><value>Song</value></data>
+  <data name="Work_Artist" xml:space="preserve"><value>Artist</value></data>
+  <data name="Work_SongHint" xml:space="preserve"><value>Example: Yellow</value></data>
+  <data name="Work_ArtistHint" xml:space="preserve"><value>Example: Coldplay</value></data>
+  <data name="Work_Match" xml:space="preserve"><value>Match lyrics</value></data>
+  <data name="Work_StopMatch" xml:space="preserve"><value>Stop matching</value></data>
+  <data name="Work_SaveFolder" xml:space="preserve"><value>Choose a lyrics save folder</value></data>
+  <data name="Work_SaveLocation" xml:space="preserve"><value>Save location</value></data>
+  <data name="Work_FileName" xml:space="preserve"><value>File name</value></data>
+  <data name="Work_Save" xml:space="preserve"><value>Save .lrc</value></data>
+  <data name="Work_Raw" xml:space="preserve"><value>Raw LRC</value></data>
+  <data name="Work_Timestamp" xml:space="preserve"><value>Timestamp</value></data>
+  <data name="Work_LyricsText" xml:space="preserve"><value>Lyrics text</value></data>
+  <data name="Work_QuerySummary" xml:space="preserve"><value>Submitted query: {0} / {1} · Source {2} · {3} lines</value></data>
+  <data name="Work_QueryNote" xml:space="preserve"><value>These are your submitted query values, not a verified upstream track identity.</value></data>
+  <data name="Work_ManualReady" xml:space="preserve"><value>Enter song and artist, then match, check and save.</value></data>
+  <data name="Work_RequiredQuery" xml:space="preserve"><value>Enter both song and artist for a more accurate match.</value></data>
+  <data name="Work_InputChanged" xml:space="preserve"><value>Input changed. Match again to get the correct lyrics.</value></data>
+  <data name="Work_MatchingSource" xml:space="preserve"><value>Matching from {0}…</value></data>
+  <data name="Work_Matched" xml:space="preserve"><value>Matched. Check the lyrics before saving.</value></data>
+  <data name="Work_NoMatch" xml:space="preserve"><value>No lyrics found. Edit song or artist, or check lyrics source settings.</value></data>
+  <data name="Work_MatchStopped" xml:space="preserve"><value>Matching stopped.</value></data>
+  <data name="Work_MatchError" xml:space="preserve"><value>Match failed: {0}</value></data>
+  <data name="Work_SourceError" xml:space="preserve"><value>{0} match failed: {1}</value></data>
+  <data name="Work_ManualEmpty" xml:space="preserve"><value>Matched lyrics will appear here.</value></data>
+  <data name="Work_OverwriteTitle" xml:space="preserve"><value>Replace lyrics</value></data>
+  <data name="Work_OverwritePrompt" xml:space="preserve"><value>This file exists. Replace it?
+{0}</value></data>
+  <data name="Work_Saved" xml:space="preserve"><value>Saved: {0}</value></data>
+  <data name="Work_SaveError" xml:space="preserve"><value>Save failed: {0}</value></data>
+  <data name="Work_Output" xml:space="preserve"><value>Lyrics output</value></data>
+  <data name="Work_Translation" xml:space="preserve"><value>Download translations</value></data>
+  <data name="Work_Merge" xml:space="preserve"><value>Merge original and translation on one line</value></data>
+  <data name="Work_MergeHint" xml:space="preserve"><value>Available when translations are enabled; your saved merge preference is retained.</value></data>
+  <data name="Work_Existing" xml:space="preserve"><value>Existing lyrics</value></data>
+  <data name="Work_Skip" xml:space="preserve"><value>Skip existing files</value></data>
+  <data name="Work_Replace" xml:space="preserve"><value>Replace existing files</value></data>
+  <data name="Work_Encoding" xml:space="preserve"><value>File encoding</value></data>
+  <data name="Work_Sources" xml:space="preserve"><value>Lyrics sources</value></data>
+  <data name="Work_Enabled" xml:space="preserve"><value>Enabled</value></data>
+  <data name="Work_Priority" xml:space="preserve"><value>Priority</value></data>
+  <data name="Work_PriorityHint" xml:space="preserve"><value>Lower numbers are tried first; disabled sources are not requested.</value></data>
+  <data name="Work_Network" xml:space="preserve"><value>Network</value></data>
+  <data name="Work_ProxyAddress" xml:space="preserve"><value>Proxy address</value></data>
+  <data name="Work_ProxyPort" xml:space="preserve"><value>Port</value></data>
+  <data name="Work_ProxyRestart" xml:space="preserve"><value>Proxy changes take effect after restarting.</value></data>
+  <data name="Work_Appearance" xml:space="preserve"><value>Appearance and language</value></data>
+  <data name="Work_Theme" xml:space="preserve"><value>Switch theme</value></data>
+  <data name="Work_Autosave" xml:space="preserve"><value>Settings save automatically.</value></data>
+  <data name="Work_SettingsSaved" xml:space="preserve"><value>Saved.</value></data>
+  <data name="Work_SettingsError" xml:space="preserve"><value>Settings save failed: {0}</value></data>
+  <data name="Work_LogsDescription" xml:space="preserve"><value>The most recent 1,000 entries are retained and can be exported as text.</value></data>
+  <data name="Work_Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="Work_ExportLogs" xml:space="preserve"><value>Export logs</value></data>
+  <data name="Work_LogTime" xml:space="preserve"><value>Time</value></data>
+  <data name="Work_LogLevel" xml:space="preserve"><value>Level</value></data>
+  <data name="Work_LogMessage" xml:space="preserve"><value>Message</value></data>
+  <data name="Work_LogEmpty" xml:space="preserve"><value>No activity yet
+Matching and download activity will appear here.</value></data>
+  <data name="Work_LogFolder" xml:space="preserve"><value>Choose a log export folder</value></data>
+  <data name="Work_LogExported" xml:space="preserve"><value>Logs exported</value></data>
+  <data name="Work_HomeTitle" xml:space="preserve"><value>Bring lyrics to your music</value></data>
+  <data name="Work_HomeDescription" xml:space="preserve"><value>Process local music in batches, or enter a song to download its lyrics.</value></data>
+  <data name="Work_HomeSteps" xml:space="preserve"><value>1 Choose a folder or enter a song
+2 Check song, artist and source settings
+3 Download, or check matched lyrics before saving</value></data>
+  <data name="Work_HomeTip" xml:space="preserve"><value>Batch lyrics save beside songs; choose the save location for single lyrics.</value></data>
+  <data name="Work_NetEase" xml:space="preserve"><value>NetEase Music</value></data>
+  <data name="Work_QQ" xml:space="preserve"><value>QQ Music</value></data>
+  <data name="Work_KuWo" xml:space="preserve"><value>Kuwo Music</value></data>
+  <data name="Work_KuGou" xml:space="preserve"><value>Kugou Music</value></data>
+  <data name="Work_LoadingPreview" xml:space="preserve"><value>Reading local lyrics…</value></data>
 </root>

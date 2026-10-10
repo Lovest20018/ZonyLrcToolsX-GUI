@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -18,8 +19,13 @@ public partial class SettingsViewModel : ViewModelBase
     private bool _isLoading = true; // Prevent saving during initial load
     private readonly DesktopPreferences _preferences;
 
-    [ObservableProperty]
-    private string _saveStatus = "设置自动保存；代理设置在重启后生效。";
+    private string? _saveError;
+    private bool _hasSaved;
+    public string SaveStatus => _saveError != null ? Text.Format("Work_SettingsError", _saveError) : Text[_hasSaved ? "Work_SettingsSaved" : "Work_Autosave"];
+    public bool HasSaveError => _saveError != null;
+    public bool ReplaceExistingLyrics { get => !SkipExistingLyrics; set => SkipExistingLyrics = !value; }
+    public string ThemeButtonText => App.Services?.GetRequiredService<MainWindowViewModel>().ThemeButtonText ?? Text["Work_Theme"];
+    [RelayCommand] private void ToggleTheme() => App.Services?.GetRequiredService<MainWindowViewModel>().ToggleThemeCommand.Execute(null);
 
     [ObservableProperty]
     private bool _followSystemLanguage = true;
@@ -78,6 +84,8 @@ public partial class SettingsViewModel : ViewModelBase
         _globalOptions = options.Value;
         _localizationService = localizationService;
         _preferences = preferences;
+        if (App.Services?.GetService<IThemeService>() is { } theme)
+            theme.ThemeChanged += (_, _) => OnPropertyChanged(nameof(ThemeButtonText));
 
         // Subscribe to language changes
         if (_localizationService != null)
@@ -94,6 +102,8 @@ public partial class SettingsViewModel : ViewModelBase
 
     private void OnLanguageChanged(object? sender, EventArgs e)
     {
+        OnPropertyChanged(nameof(SaveStatus));
+        OnPropertyChanged(nameof(ThemeButtonText));
         OnPropertyChanged(nameof(SettingsTitle));
         OnPropertyChanged(nameof(SettingsLanguage));
         OnPropertyChanged(nameof(SettingsFollowSystem));
@@ -148,7 +158,7 @@ public partial class SettingsViewModel : ViewModelBase
     partial void OnProxyPortChanged(int value) => SaveSettingsIfNotLoading();
     partial void OnIsTranslationEnabledChanged(bool value) => SaveSettingsIfNotLoading();
     partial void OnIsOneLineModeChanged(bool value) => SaveSettingsIfNotLoading();
-    partial void OnSkipExistingLyricsChanged(bool value) => SaveSettingsIfNotLoading();
+    partial void OnSkipExistingLyricsChanged(bool value) { OnPropertyChanged(nameof(ReplaceExistingLyrics)); SaveSettingsIfNotLoading(); }
     partial void OnSelectedEncodingChanged(string value) => SaveSettingsIfNotLoading();
 
     private void ApplyLanguage(string cultureName)
@@ -235,12 +245,14 @@ public partial class SettingsViewModel : ViewModelBase
             var configPath = DesktopPreferences.ConfigPath;
             File.WriteAllText(configPath + ".tmp", yaml);
             File.Move(configPath + ".tmp", configPath, true);
-            SaveStatus = "已保存。代理设置在重启后生效。";
+            _saveError = null; _hasSaved = true;
+            OnPropertyChanged(nameof(SaveStatus)); OnPropertyChanged(nameof(HasSaveError));
         }
         catch (Exception ex)
         {
             // Log error but don't crash - settings save is best effort
-            SaveStatus = $"设置保存失败：{ex.Message}";
+            _saveError = ex.Message;
+            OnPropertyChanged(nameof(SaveStatus)); OnPropertyChanged(nameof(HasSaveError));
         }
     }
 
@@ -268,6 +280,9 @@ public partial class SettingsViewModel : ViewModelBase
 
 public partial class LyricsProviderSettingViewModel : ObservableObject
 {
+    public LocalizedText Text { get; } = new();
+    public LyricsProviderSettingViewModel() => Text.CollectionChanged += (_, _) => OnPropertyChanged(nameof(DisplayName));
+    public string DisplayName => Text["Work_" + Name];
     [ObservableProperty]
     private string _name = string.Empty;
 

@@ -1,23 +1,16 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels"
-             xmlns:services="using:ZonyLrcTools.Desktop.Services"
-             x:Class="ZonyLrcTools.Desktop.Views.Pages.LogsPage" x:DataType="vm:LogsViewModel">
-    <Grid RowDefinitions="Auto,*">
-        <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,20">
-            <StackPanel Spacing="6">
-                <TextBlock Text="运行日志" FontSize="24" FontWeight="Bold" />
-                <TextBlock Text="查看下载失败原因。保留最近 1000 条记录，可导出为文本。" Opacity="0.6" />
-            </StackPanel>
-            <Button Grid.Column="1" Content="清空" Command="{Binding ClearCommand}" Margin="0,0,12,0" />
-            <Button Grid.Column="2" Content="导出日志" Command="{Binding ExportCommand}" />
-        </Grid>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Entries}" AutoGenerateColumns="False" IsReadOnly="True">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="时间" Binding="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}" Width="100" x:DataType="services:LogEntry" />
-                <DataGridTextColumn Header="级别" Binding="{Binding Level}" Width="100" x:DataType="services:LogEntry" />
-                <DataGridTextColumn Header="信息" Binding="{Binding Message}" Width="*" x:DataType="services:LogEntry" />
-            </DataGrid.Columns>
-        </DataGrid>
-    </Grid>
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels" xmlns:services="using:ZonyLrcTools.Desktop.Services" xmlns:loc="using:ZonyLrcTools.Desktop.Infrastructure.Localization" x:Class="ZonyLrcTools.Desktop.Views.Pages.LogsPage" x:DataType="vm:LogsViewModel">
+ <Grid RowDefinitions="Auto,*">
+  <StackPanel Spacing="12" Margin="0,0,0,16">
+   <TextBlock Text="{Binding Text[Work_LogsTitle]}" Classes="title"/><TextBlock Text="{Binding Text[Work_LogsDescription]}" Classes="secondary"/>
+   <StackPanel Orientation="Horizontal" Spacing="8"><Button Content="{Binding Text[Work_Clear]}" Command="{Binding ClearCommand}"/><Button Content="{Binding Text[Work_ExportLogs]}" Command="{Binding ExportCommand}"/></StackPanel>
+  </StackPanel>
+  <Panel Grid.Row="1">
+   <DataGrid ItemsSource="{Binding Entries}" AutoGenerateColumns="False" IsReadOnly="True"><DataGrid.Columns>
+    <DataGridTextColumn x:DataType="services:LogEntry" Header="{loc:Localize Work_LogTime}" Binding="{Binding Timestamp, StringFormat={}{0:HH:mm:ss}}" Width="100"/>
+    <DataGridTextColumn x:DataType="services:LogEntry" Header="{loc:Localize Work_LogLevel}" Binding="{Binding Level}" Width="100"/>
+    <DataGridTextColumn x:DataType="services:LogEntry" Header="{loc:Localize Work_LogMessage}" Binding="{Binding Message}" Width="*"/>
+   </DataGrid.Columns></DataGrid>
+   <Border Background="{DynamicResource CardBackgroundBrush}" Margin="1,36,1,1" Padding="24" IsVisible="{Binding HasNoEntries}" IsHitTestVisible="False"><TextBlock Text="{Binding Text[Work_LogEmpty]}" Classes="secondary" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center"/></Border>
+  </Panel>
+ </Grid>
 </UserControl>

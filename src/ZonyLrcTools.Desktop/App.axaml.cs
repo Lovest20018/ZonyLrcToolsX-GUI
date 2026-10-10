@@ -30,7 +30,8 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         // Avoid duplicate validations from both Avalonia and CommunityToolkit
-        BindingPlugins.DataValidators.RemoveAt(0);
+        foreach (var validator in BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray())
+            BindingPlugins.DataValidators.Remove(validator);
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {

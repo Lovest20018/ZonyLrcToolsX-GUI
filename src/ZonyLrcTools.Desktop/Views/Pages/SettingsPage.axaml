@@ -1,144 +1,43 @@
-<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels"
-             x:Class="ZonyLrcTools.Desktop.Views.Pages.SettingsPage"
-             x:DataType="vm:SettingsViewModel">
-
-    <ScrollViewer>
-        <StackPanel Spacing="24">
-            <!-- Title -->
-            <StackPanel Margin="0,0,0,8">
-                <TextBlock Text="{Binding SettingsTitle}"
-                           FontSize="24"
-                           FontWeight="Bold" />
-            </StackPanel>
-
-            <!-- Language Settings -->
-            <Border Background="{DynamicResource CardBackgroundBrush}"
-                    CornerRadius="8"
-                    BoxShadow="0 2 8 0 #0D000000"
-                    Padding="24">
-                <StackPanel Spacing="16">
-                    <TextBlock Text="{Binding SettingsLanguage}"
-                               FontSize="18"
-                               FontWeight="SemiBold" />
-
-                    <CheckBox Content="{Binding SettingsFollowSystem}"
-                              IsChecked="{Binding FollowSystemLanguage}" />
-
-                    <StackPanel Orientation="Horizontal" Spacing="16" IsEnabled="{Binding !FollowSystemLanguage}">
-                        <RadioButton GroupName="Language"
-                                     Content="{Binding SettingsChinese}"
-                                     IsChecked="{Binding IsChineseSelected}" />
-                        <RadioButton GroupName="Language"
-                                     Content="{Binding SettingsEnglish}"
-                                     IsChecked="{Binding IsEnglishSelected}" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <!-- Network Settings -->
-            <Border Background="{DynamicResource CardBackgroundBrush}"
-                    CornerRadius="8"
-                    BoxShadow="0 2 8 0 #0D000000"
-                    Padding="24">
-                <StackPanel Spacing="16">
-                    <TextBlock Text="{Binding SettingsProxy}"
-                               FontSize="18"
-                               FontWeight="SemiBold" />
-
-                    <CheckBox Content="{Binding SettingsProxyEnable}"
-                              IsChecked="{Binding IsProxyEnabled}" />
-
-                    <Grid ColumnDefinitions="*,Auto,120" IsEnabled="{Binding IsProxyEnabled}">
-                        <TextBox Grid.Column="0"
-                                 Text="{Binding ProxyIp}"
-                                 Watermark="{Binding SettingsProxyAddress}"
-                                 Margin="0,0,8,0" />
-                        <TextBlock Grid.Column="1"
-                                   Text=":"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,8,0" />
-                        <NumericUpDown Grid.Column="2"
-                                       Value="{Binding ProxyPort}"
-                                       Minimum="1"
-                                       Maximum="65535" />
-                    </Grid>
-                </StackPanel>
-            </Border>
-
-            <!-- Lyrics Settings -->
-            <Border Background="{DynamicResource CardBackgroundBrush}"
-                    CornerRadius="8"
-                    BoxShadow="0 2 8 0 #0D000000"
-                    Padding="24">
-                <StackPanel Spacing="16">
-                    <TextBlock Text="歌词输出"
-                               FontSize="18"
-                               FontWeight="SemiBold" />
-
-                    <CheckBox Content="下载翻译歌词"
-                              IsChecked="{Binding IsTranslationEnabled}" />
-
-                    <CheckBox Content="原文与翻译合并为一行"
-                              IsChecked="{Binding IsOneLineMode}" />
-
-                    <CheckBox Content="跳过已有 .lrc 文件（关闭后覆盖已有歌词）"
-                              IsChecked="{Binding SkipExistingLyrics}" />
-
-                    <StackPanel Orientation="Horizontal" Spacing="16">
-                        <TextBlock Text="文件编码："
-                                   VerticalAlignment="Center" />
-                        <ComboBox ItemsSource="{Binding AvailableEncodings}"
-                                  SelectedItem="{Binding SelectedEncoding}"
-                                  Width="150" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <!-- Lyrics Providers -->
-            <Border Background="{DynamicResource CardBackgroundBrush}"
-                    CornerRadius="8"
-                    BoxShadow="0 2 8 0 #0D000000"
-                    Padding="24">
-                <StackPanel Spacing="16">
-                    <TextBlock Text="{Binding SettingsLyricsProvider}"
-                               FontSize="18"
-                               FontWeight="SemiBold" />
-
-                    <ItemsControl ItemsSource="{Binding LyricsProviders}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:LyricsProviderSettingViewModel">
-                                <Border Background="{DynamicResource AppBackgroundBrush}"
-                                        CornerRadius="4"
-                                        Padding="12,8"
-                                        Margin="0,4">
-                                    <Grid ColumnDefinitions="Auto,*,Auto">
-                                        <CheckBox Grid.Column="0"
-                                                  IsChecked="{Binding IsEnabled}"
-                                                  Margin="0,0,12,0" />
-                                        <TextBlock Grid.Column="1"
-                                                   Text="{Binding Name}"
-                                                   VerticalAlignment="Center" />
-                                        <NumericUpDown Grid.Column="2" Value="{Binding Priority}"
-                                                       Minimum="1" Maximum="99" Width="100"
-                                                       FormatString="0" IsEnabled="{Binding IsEnabled}" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
-
-            <!-- Actions -->
-            <TextBlock Text="优先级越小越先尝试；取消勾选可禁用歌词源。" Opacity="0.6" />
-            <TextBlock Text="{Binding SaveStatus}" TextWrapping="Wrap" />
-            <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
-                <Button Content="{Binding SettingsReset}"
-                        Command="{Binding ResetToDefaultsCommand}" />
-            </StackPanel>
-        </StackPanel>
-    </ScrollViewer>
-
+<UserControl xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vm="using:ZonyLrcTools.Desktop.ViewModels" x:Class="ZonyLrcTools.Desktop.Views.Pages.SettingsPage" x:DataType="vm:SettingsViewModel">
+ <Grid RowDefinitions="Auto,*,Auto">
+  <TextBlock Text="{Binding SettingsTitle}" Classes="title" Margin="0,0,0,16"/>
+  <ScrollViewer Grid.Row="1"><StackPanel Spacing="16">
+   <Border Classes="card"><StackPanel Spacing="12">
+    <TextBlock Text="{Binding Text[Work_Output]}" FontSize="18" FontWeight="SemiBold"/>
+    <CheckBox Content="{Binding Text[Work_Translation]}" IsChecked="{Binding IsTranslationEnabled}"/>
+    <CheckBox Content="{Binding Text[Work_Merge]}" IsChecked="{Binding IsOneLineMode}" IsEnabled="{Binding IsTranslationEnabled}"/>
+    <TextBlock Text="{Binding Text[Work_MergeHint]}" Classes="secondary" IsVisible="{Binding !IsTranslationEnabled}"/>
+    <TextBlock Text="{Binding Text[Work_Existing]}" FontWeight="SemiBold"/>
+    <WrapPanel><RadioButton Content="{Binding Text[Work_Skip]}" IsChecked="{Binding SkipExistingLyrics}" GroupName="Existing" Margin="0,0,24,8"/><RadioButton Content="{Binding Text[Work_Replace]}" IsChecked="{Binding ReplaceExistingLyrics}" GroupName="Existing" Margin="0,0,0,8"/></WrapPanel>
+    <StackPanel Orientation="Horizontal" Spacing="12"><TextBlock Text="{Binding Text[Work_Encoding]}" VerticalAlignment="Center"/><ComboBox ItemsSource="{Binding AvailableEncodings}" SelectedItem="{Binding SelectedEncoding}" Width="160"/></StackPanel>
+   </StackPanel></Border>
+   <Border Classes="card"><StackPanel Spacing="12">
+    <TextBlock Text="{Binding Text[Work_Sources]}" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="{Binding Text[Work_PriorityHint]}" Classes="secondary"/>
+    <Grid ColumnDefinitions="*,100,120"><TextBlock Grid.Column="1" Text="{Binding Text[Work_Enabled]}"/><TextBlock Grid.Column="2" Text="{Binding Text[Work_Priority]}"/></Grid>
+    <ItemsControl ItemsSource="{Binding LyricsProviders}"><ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:LyricsProviderSettingViewModel">
+     <Border BorderBrush="{DynamicResource SeparatorBrush}" BorderThickness="0,0,0,1" Padding="0,8"><Grid ColumnDefinitions="*,100,120">
+      <StackPanel VerticalAlignment="Center"><TextBlock Text="{Binding DisplayName}"/><TextBlock Text="{Binding Name}" Classes="secondary"/></StackPanel>
+      <CheckBox Grid.Column="1" IsChecked="{Binding IsEnabled}" Content="{Binding Text[Work_Enabled]}"/>
+      <NumericUpDown Grid.Column="2" Value="{Binding Priority}" Minimum="1" Maximum="99" Width="100" FormatString="0" IsEnabled="{Binding IsEnabled}" HorizontalAlignment="Left"/>
+     </Grid></Border>
+    </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+   </StackPanel></Border>
+   <Border Classes="card"><StackPanel Spacing="12">
+    <TextBlock Text="{Binding Text[Work_Network]}" FontSize="18" FontWeight="SemiBold"/>
+    <CheckBox Content="{Binding SettingsProxyEnable}" IsChecked="{Binding IsProxyEnabled}"/>
+    <Grid ColumnDefinitions="*,120" IsEnabled="{Binding IsProxyEnabled}">
+     <StackPanel Spacing="6" Margin="0,0,12,0"><TextBlock Text="{Binding Text[Work_ProxyAddress]}"/><TextBox Text="{Binding ProxyIp}"/></StackPanel>
+     <StackPanel Grid.Column="1" Spacing="6"><TextBlock Text="{Binding Text[Work_ProxyPort]}"/><NumericUpDown Value="{Binding ProxyPort}" Minimum="1" Maximum="65535" FormatString="0"/></StackPanel>
+    </Grid><TextBlock Text="{Binding Text[Work_ProxyRestart]}" Classes="secondary"/>
+   </StackPanel></Border>
+   <Border Classes="card"><StackPanel Spacing="12">
+    <TextBlock Text="{Binding Text[Work_Appearance]}" FontSize="18" FontWeight="SemiBold"/>
+    <Button Content="{Binding ThemeButtonText}" Command="{Binding ToggleThemeCommand}"/>
+    <TextBlock Text="{Binding SettingsLanguage}" FontWeight="SemiBold"/>
+    <CheckBox Content="{Binding SettingsFollowSystem}" IsChecked="{Binding FollowSystemLanguage}"/>
+    <StackPanel Orientation="Horizontal" Spacing="24" IsEnabled="{Binding !FollowSystemLanguage}"><RadioButton Content="{Binding SettingsChinese}" GroupName="Language" IsChecked="{Binding IsChineseSelected}"/><RadioButton Content="{Binding SettingsEnglish}" GroupName="Language" IsChecked="{Binding IsEnglishSelected}"/></StackPanel>
+   </StackPanel></Border>
+  </StackPanel></ScrollViewer>
+  <Border Grid.Row="2" Classes="card" Margin="0,12,0,0" Padding="12"><Grid ColumnDefinitions="*,Auto"><TextBlock Text="{Binding SaveStatus}" Classes="secondary" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" IsVisible="{Binding !HasSaveError}"/><TextBlock Text="{Binding SaveStatus}" Foreground="{DynamicResource ErrorColorBrush}" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" IsVisible="{Binding HasSaveError}"/><Button Grid.Column="1" Content="{Binding SettingsReset}" Command="{Binding ResetToDefaultsCommand}"/></Grid></Border>
+ </Grid>
 </UserControl>
