@@ -20,4 +20,8 @@
 - [x] Add .github/workflows/windows-gui-release.yml with GUI tag, published-release and manual triggers.
 - [x] Update WINDOWS-GUI.md with exact tag commands and assets.
 - [x] Run Release GUI tests (30/30); compile installer; verify package contents and installer metadata. Independent release review: no blockers.
-- [ ] Commit/push dev, create gui-v1.0.0, monitor Actions until release assets are available.
+- [x] Commit/push dev, create gui-v1.0.0, monitor Actions until release assets are available.
+
+Verified: Actions run 38009549632 succeeded for commit 6d55668. Published gui-v1.0.0
+contains setup EXE (34,201,806 bytes), portable ZIP (45,834,926 bytes), and SHA256SUMS.txt.
+The GUI Release workflow is active; no custom GitHub secrets were added.
