@@ -1,0 +1,109 @@
+name: Windows GUI Release
+
+on:
+  push:
+    tags: ['gui-v*']
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing GUI tag, e.g. gui-v1.0.0'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gui-release-${{ github.event.release.tag_name || inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    if: github.event_name != 'release' || startsWith(github.event.release.tag_name, 'gui-v')
+    runs-on: windows-2022
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Validate release version
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag || github.ref_name }}
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^gui-v(\d+\.\d+\.\d+)$') {
+            throw 'GUI tags must use gui-vMAJOR.MINOR.PATCH.'
+          }
+          "version=$($Matches[1])" >> $env:GITHUB_OUTPUT
+          "tag=$env:RELEASE_TAG" >> $env:GITHUB_OUTPUT
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.version.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Require a tag from mainline
+        run: |
+          git fetch origin dev
+          git merge-base --is-ancestor HEAD origin/dev
+          if ($LASTEXITCODE -ne 0) { throw 'Release commit must belong to dev.' }
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Run GUI regression tests
+        run: |
+          dotnet test tests/ZonyLrcTools.Gui.Tests -c Release --filter "Category!=Live" --logger "trx;LogFileName=gui-release.trx" --results-directory artifacts/tests
+          if ($LASTEXITCODE -ne 0) { throw 'GUI regression tests failed.' }
+
+      - name: Build self-contained portable package
+        run: ./scripts/Publish-WindowsGui.ps1 -OutputDirectory "$env:GITHUB_WORKSPACE/dist"
+
+      - name: Locate Inno Setup
+        id: inno
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (!(Test-Path -LiteralPath $iscc)) { throw 'Inno Setup compiler missing.' }
+          "iscc=$iscc" >> $env:GITHUB_OUTPUT
+
+      - name: Build installer and checksums
+        env:
+          APP_VERSION: ${{ steps.version.outputs.version }}
+          ISCC_PATH: ${{ steps.inno.outputs.iscc }}
+        run: ./scripts/Build-WindowsGuiInstaller.ps1 -Version $env:APP_VERSION -OutputDirectory "$env:GITHUB_WORKSPACE/dist" -Iscc $env:ISCC_PATH
+
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          APP_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          $assets = @(
+            "dist/ZonyLrcTools-Windows-GUI-x64.zip",
+            "dist/ZonyLrcTools-Windows-GUI-x64-Setup-$env:APP_VERSION.exe",
+            "dist/SHA256SUMS.txt"
+          )
+          foreach ($asset in $assets) {
+            if (!(Test-Path -LiteralPath $asset)) { throw "Missing release asset: $asset" }
+          }
+          gh release view $env:RELEASE_TAG --json tagName 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:RELEASE_TAG @assets --clobber
+          } else {
+            gh release create $env:RELEASE_TAG @assets --verify-tag --title "Windows GUI $env:APP_VERSION" --generate-notes
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'Release upload failed.' }
+
+      - name: Retain test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gui-release-test-results
+          path: artifacts/tests/*.trx
+          if-no-files-found: ignore

@@ -54,11 +54,43 @@ dotnet test tests/ZonyLrcTools.Gui.Tests -c Release --filter "Category=Live"
 ```
 
 本地测试覆盖页面渲染/切换、中英动态切换、真实音乐标签扫描、设置持久化、已有歌词保护、
-禁用歌词源、编码、取消后的写入保护和封面状态回调；另覆盖重试分母、跳过项排除、\n并行数锁定、停止中状态、选中本地预览竞态、下载完成后预览刷新、Esc 抽屉关闭，\n以及单曲输入变更、匹配中输入变更和覆盖确认等待期间变更的保存保护。
+禁用歌词源、编码、取消后的写入保护和封面状态回调；另覆盖重试分母、跳过项排除、
+并行数锁定、停止中状态、选中本地预览竞态、下载完成后预览刷新、Esc 抽屉关闭，
+以及单曲输入变更、匹配中输入变更和覆盖确认等待期间变更的保存保护。
 联网测试通过桌面 ViewModel 命令匹配并保存示例歌曲，需要可访问歌词源。
 设置 `ZONY_GUI_TEST_ARTIFACTS` 为输出目录时，本地测试会生成 900×600、1200×800、
 1440×900 的中英浅深色页面及含 5000 行的本地预览/匹配结果截图。
 这些是 Avalonia Headless 的逻辑像素渲染，不能替代 Windows 原生窗口、任务栏和高 DPI 验收。
+
+## GitHub 自动发布
+
+默认主线为 `dev`。推送 `gui-v主版本.次版本.修订版本` 标签后，`Windows GUI Release`
+工作流自动测试并发布：
+
+- `ZonyLrcTools-Windows-GUI-x64-Setup-版本.exe`：安装版，包含运行时、开始菜单和可选桌面快捷方式。
+- `ZonyLrcTools-Windows-GUI-x64.zip`：解压即可运行的便携版。
+- `SHA256SUMS.txt`：两个文件的 SHA256 校验值。
+
+安装版默认安装到当前用户目录，无需管理员权限；升级和卸载保留用户配置。
+安装程序目前未进行代码签名。
+
+```powershell
+git checkout dev
+git pull --ff-only
+git tag -a gui-v1.0.0 -m "Windows GUI 1.0.0"
+git push origin gui-v1.0.0
+```
+
+后续递增版本号，不移动已发布标签。也可在 GitHub 新建并发布 `gui-v` 标签的 Release，
+或在 Actions 手动运行工作流并填写已有 GUI 标签。标签提交必须属于 `dev` 主线。
+流程使用自动提供的 `GITHUB_TOKEN`，无需配置额外密钥。原有命令行版发布流程保留。
+
+本地制作安装版需要 Inno Setup 6：
+
+```powershell
+./scripts/Publish-WindowsGui.ps1 -OutputDirectory ./dist
+./scripts/Build-WindowsGuiInstaller.ps1 -Version 1.0.0 -OutputDirectory ./dist
+```
 
 ## 来源
 
